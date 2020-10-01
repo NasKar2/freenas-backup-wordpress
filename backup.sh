@@ -195,6 +195,7 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
    print_msg "Restore Database No Migration"
    iocage exec ${WORDPRESS_APP} "mysql -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
+fi
    iocage restart ${WORDPRESS_APP}
    echo
 else
