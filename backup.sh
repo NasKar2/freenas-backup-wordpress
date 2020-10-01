@@ -31,6 +31,8 @@ DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
 IP_OLD=""
 IP_NEW=""
+OLD_GATEWAY=""
+NEW_GATEWAY=""
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
 
@@ -79,9 +81,16 @@ fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
-   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
-   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
-   print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
+#   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
+#   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
+#   print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
+fi
+if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
+   MIGRATE_GATEWAY="TRUE"
+   print_msg "Set to Migrate GATEWAY address from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
+#   sed -i '' "s|OLD_GATEWAY=.*|OLD_GATEWAY=''|g" ./backup-config
+#   sed -i '' "s|NEW_GATEWAY=.*|NEW_GATEWAY=''|g" ./backup-config
+#   print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
 PW="/root/wordpress_db_password.txt"
@@ -158,13 +167,30 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
   #  iocage exec "${WORDPRESS_APP}" chmod 660 
-     iocage exec "${WORDPRESS_APP}" "mysql -u root -p${DB_ROOT_PASSWORD} wordpress < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+  if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
+     iocage exec "${WORDPRESS_APP}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+  # edit wp-config.php
+     print_msg "Changing ${CONFIG_PHP} password to match new install"
+     WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
+     sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
+  fi
+fi
+if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
+     print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
+     sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
+     sed -i '' "s|${OLD_GATEWAY}|""|" ./backup-config
+     sed -i '' "s|${NEW_GATEWAY}|""|" ./backup-config
+     print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
+  #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
+  #  iocage exec "${WORDPRESS_APP}" chmod 660
+     iocage exec "${WORDPRESS_APP}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
      sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
 fi
 
+if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
 
    print_msg "Restore Database No Migration"
    iocage exec ${WORDPRESS_APP} "mysql -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
