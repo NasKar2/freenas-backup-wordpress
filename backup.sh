@@ -77,12 +77,11 @@ if [ -z $DB_BACKUP_NAME ]; then
   exit 1
 fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
-  MIGRATE_IP="TRUE"
-  print_msg "Migrate IP address"
-echo "OLD_IP =${OLD_IP}"
-echo "NEW_IP =${NEW_IP}"
-sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
-sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
+   MIGRATE_IP="TRUE"
+   print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
+   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
+   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
+   print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
 PW="/root/wordpress_db_password.txt"
@@ -121,9 +120,9 @@ echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
       iocage exec ${WORDPRESS_APP} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "/usr/local/www/wordpress/${DB_BACKUP_NAME}""
 #      mv ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/files/${DB_BACKUP_NAME} ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${DB_BACKUP_NAME}
-      echo "Wordpress database backup ${DB_BACKUP_NAME} complete"
+      print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
       tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} .
-      echo "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}"
+      print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}"
       echo
 
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
@@ -131,7 +130,7 @@ RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}
 RESTORE_SQL="/usr/local/www/wordpress"
 APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
 CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
-echo "APPS_DIR_SQL =${APPS_DIR_SQL}"
+#echo "APPS_DIR_SQL =${APPS_DIR_SQL}"
 
 #
 # Check if currentRestoreDir exists
