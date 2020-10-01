@@ -1,0 +1,12 @@
+cron=""
+POOL_PATH="/mnt/v1"
+APPS_PATH="apps"
+BACKUP_PATH="backup/228"
+FILES_PATH="files"
+BACKUP_NAME="wordpress.relative.tar.gz"
+WORDPRESS_APP="wordpress"
+DATABASE_NAME="wordpress"
+DB_BACKUP_NAME="wordpress.sql"
+OLD_IP=''
+NEW_IP=''
+
