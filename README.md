@@ -49,10 +49,10 @@ Optional Migration of the wordpress can be done specifying the old and new IPs a
 Data needs to be changed to match your requirements.
 Change IP & Gateway | Change Just IP
 ------------------- | --------------
-* OLD_IP="192.168.5.77" | OLD_IP="192.168.5.77"
-* NEW_IP="192.168.1.78" | NEW_IP="192.168.5.78"
-* OLD_GATEWAY="192.168.5.1" | OLD_GATEWAY=""
-* NEW_GATEWAY="192.168.1.1" | NEW_GATEWAY=""
+OLD_IP="192.168.5.77" | OLD_IP="192.168.5.77"
+NEW_IP="192.168.1.78" | NEW_IP="192.168.5.78"
+OLD_GATEWAY="192.168.5.1" | OLD_GATEWAY=""
+NEW_GATEWAY="192.168.1.1" | NEW_GATEWAY=""
 
 ### Run a backup
 
