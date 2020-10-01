@@ -40,7 +40,7 @@ Many of the options are self-explanatory, and all should be adjusted to suit you
 Optional parameters can be set if you didn't install wordpress with install script from https://github.com/basilhendroff/freenas-iocage-wordpress
 If you used script to install wordpress, the backup script will read the /root/wordpress_db_password.txt file and place the passwords in the config file for you. 
 Passwords in this document are just random examples.
-If resintalling Wordpress with new PASSWORDS delete these 2 lines from the backup-config
+**If resintalling Wordpress with new PASSWORDS delete these 2 lines from the backup-config**
 
 * DB_ROOT_PASSWORD="8109823ojf;ljadsf;lj"
 * DB_PASSWORD="lknv;asdjf72905729039"
