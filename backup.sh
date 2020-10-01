@@ -131,6 +131,7 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 #      mv ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/files/${DB_BACKUP_NAME} ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${DB_BACKUP_NAME}
       print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
       tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} .
+      print_msg "Tar file directory"
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}"
       echo
 
