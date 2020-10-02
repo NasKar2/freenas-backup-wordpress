@@ -60,8 +60,9 @@ Change to the directory of the script
 ```./backup.sh```
 Select B or b to backup and R or r to restore
 
-### Create a cron job to run the script to backup automatically without user intervention
+### Automate Backup
 
+Create a cron job pointing to the backup.sh file and 
 Set cron="yes" in the backup-config
 
 ## Disclaimer
