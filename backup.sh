@@ -129,7 +129,11 @@ echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
       iocage exec ${WORDPRESS_APP} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "/usr/local/www/wordpress/${DB_BACKUP_NAME}""
       print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
-      tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} .
+      tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} . -C ${PW}
+
+#tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
+#tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
+
       print_msg "Tar file directory"
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}"
       echo
@@ -151,7 +155,8 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
    fi
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
-     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
+     mv ${RESTORE_DIR}/${FILES_PATH}/"${WORDPRESS_APP}_db_password.txt" /root/"${WORDPRESS_APP}_db_password.txt" 
+    chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
 
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
