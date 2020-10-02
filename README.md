@@ -9,7 +9,7 @@ You can manually enter the DB_ROOT_PASSWORD and DB_PASSWORD in the backup-config
 
 ## Prerequisites 
 
-Create a config file called backup-config.  This file should be owned by root and only accessible by root user. ```chmod 600 backup-config```
+*You must have a working install of Wordpress.* Create a config file called backup-config.  This file should be owned by root and only accessible by root user. ```chmod 600 backup-config```
 
 ```
 cron=""
