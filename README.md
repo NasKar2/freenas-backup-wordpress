@@ -18,10 +18,6 @@ BACKUP_PATH="backup"
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
-OLD_IP=""
-NEW_IP=""
-OLD_GATEWAY=""
-NEW_GATEWAY=""
 ```
 Many of the options are self-explanatory, and all should be adjusted to suit your needs, but only a few are mandatory. The mandatory options are:
 * cron Set this variable to "yes" if you want to automate the backup. You will not get the option to restore until you set it back to blank
