@@ -13,7 +13,7 @@ Create a config file called backup-config
 
 ```
 cron=""
-POOL_PATH="/mnt/v1"
+POOL_PATH=""
 APPS_PATH="apps"
 BACKUP_PATH="backup"
 FILES_PATH="files"
@@ -27,8 +27,7 @@ OLD_GATEWAY=""
 NEW_GATEWAY=""
 ```
 Many of the options are self-explanatory, and all should be adjusted to suit your needs, but only a few are mandatory. The mandatory options are:
-
-* POOL_PATH is the location of your pool in my setup /mnt/v1
+* POOL_PATH is the location of your pool in my setup /mnt/v1. It will be set automatically if left blank
 * APPS_PATH is the location of you applications data usually /mnt/v1/apps
 * BACKUP_PATH is the location to store your backups in my setup /mnt/v1/backup
 * FILES_PATH is the location to the wordpress files data in my setup /mnt/v1/apps/wordpress/files.  Leave blank if the files data is in /mnt/v1/apps/wordpress
