@@ -13,12 +13,9 @@ Create a config file called backup-config.  This file should be owned by root an
 
 ```
 cron=""
-POOL_PATH=""
 APPS_PATH="apps"
 BACKUP_PATH="backup"
-FILES_PATH="files"
 BACKUP_NAME="wordpress.tar.gz"
-WORDPRESS_APP="wordpress"
 DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
 OLD_IP=""
@@ -28,24 +25,29 @@ NEW_GATEWAY=""
 ```
 Many of the options are self-explanatory, and all should be adjusted to suit your needs, but only a few are mandatory. The mandatory options are:
 * cron Set this variable to "yes" if you want to automate the backup. You will not get the option to restore until you set it back to blank
-* POOL_PATH is the location of your pool in my setup /mnt/v1. It will be set automatically if left blank
 * APPS_PATH is the location of you applications data usually /mnt/v1/apps
 * BACKUP_PATH is the location to store your backups in my setup /mnt/v1/backup
-* FILES_PATH is the location to the wordpress files data in my setup /mnt/v1/apps/wordpress/files.  Leave blank if the files data is in /mnt/v1/apps/wordpress
 * BACKUP_NAME is the name of the backup file in my setup wordpress.tar.gz"
-* WORDPRESS_APP is the name of the jail wordpress is installed in so it's data will be in /mnt/v1/apps/wordpress
 * DATABASE_NAME is the name of your wordpress database
 * DB_BACKUP_NAME is the name of the wordpress database files wordpress.sql
 
-Optional parameters can be set if you didn't install wordpress with install script from https://github.com/basilhendroff/freenas-iocage-wordpress
-If you used script to install wordpress, the backup script will read the /root/wordpress_db_password.txt file and place the passwords in the config file for you. 
+### Optional Parameters
+
+* POOL_PATH is the location of your pool in my setup /mnt/v1. It will be set automatically if left blank
+* FILES_PATH is the location to the wordpress files data in my setup /mnt/v1/apps/wordpress/files.  Leave blank if the files data is in /mnt/v1/apps/wordpress. Will default to 'files'
+* WORDPRESS_APP is the name of the jail wordpress is installed in so it's data will be in /mnt/v1/apps/wordpress. Will default to 'wordpress'.
+
+### Other Optional parameters can be set if you didn't install wordpress with install script from https://github.com/basilhendroff/freenas-iocage-wordpress
+
+If you used the [script](https://github.com/basilhendroff/freenas-iocage-wordpress) to install wordpress, the backup script will read the /root/wordpress_db_password.txt file (or tech_db_password if WORDPRESS_APP="tech"). 
+If you installed wordpress without the script you must specify the password parameters below.
 Passwords in this document are just random examples.
-**If resintalling Wordpress with new PASSWORDS delete these 2 lines from the backup-config**
+**If resintalling Wordpress without the script with new PASSWORDS update these 2 lines from the backup-config**
 
 * DB_ROOT_PASSWORD="8109823ojf;ljadsf;lj"
 * DB_PASSWORD="lknv;asdjf72905729039"
 
-Optional Migration of the wordpress can be done specifying the old and new IPs and old and new gateways.  These parameters will be removed after the restore is complete.
+### Optional Migration of the wordpress can be done specifying the old and new IPs and old and new gateways.  These parameters will be removed after the restore is complete.
 Data needs to be changed to match your requirements. Remember the password to access the web interface will change back to restored backup.
 
 Change IP & Gateway | Change Just IP

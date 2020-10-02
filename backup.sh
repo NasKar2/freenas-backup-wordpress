@@ -67,7 +67,7 @@ if [ -z $BACKUP_NAME ]; then
   exit 1                                                                                                        
 fi
 if [ -z $WORDPRESS_APP ]; then
-  echo "WORDPRESS_APP not set so will be set to default 'wordpress'"
+  print_msg "WORDPRESS_APP not set so will be set to default 'wordpress'"
   WORDPRESS_APP="wordpress"
 fi
 if [ -z $DATABASE_NAME ]; then
@@ -81,16 +81,16 @@ fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
-#   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
-#   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
-#   print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
+   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
+   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
+   print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
 fi
 if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
    MIGRATE_GATEWAY="TRUE"
    print_msg "Set to Migrate GATEWAY address from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
-#   sed -i '' "s|OLD_GATEWAY=.*|OLD_GATEWAY=''|g" ./backup-config
-#   sed -i '' "s|NEW_GATEWAY=.*|NEW_GATEWAY=''|g" ./backup-config
-#   print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
+   sed -i '' "s|OLD_GATEWAY=.*|OLD_GATEWAY=''|g" ./backup-config
+   sed -i '' "s|NEW_GATEWAY=.*|NEW_GATEWAY=''|g" ./backup-config
+   print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
 PW="/root/${WORDPRESS_APP}_db_password.txt"
