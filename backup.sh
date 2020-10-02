@@ -50,32 +50,32 @@ if [ -z $POOL_PATH ]; then
   print_msg "POOL_PATH defaulting to "$POOL_PATH
 fi
 if [ -z $APPS_PATH ]; then
-  echo 'Configuration error: APPS_PATH must be set'
+  print_err 'Configuration error: APPS_PATH must be set'
   exit 1                                                                                                        
 fi
 if [ -z $BACKUP_PATH ]; then
-  echo 'Configuration error: BACKUP_PATH must be set'
+  print_err 'Configuration error: BACKUP_PATH must be set'
   exit 1                                                                                                        
 fi
 
 if [ -z $FILES_PATH ]; then
-  echo 'Configuration error: FILES_PATH must be set'
-  exit 1
+  print_msg "FILES_PATH not set will default to 'files'"
+  FILES_PATH="files"
 fi
 if [ -z $BACKUP_NAME ]; then
-  echo 'Configuration error: BACKUP_NAME must be set'
+  print_err 'Configuration error: BACKUP_NAME must be set'
   exit 1                                                                                                        
 fi
 if [ -z $WORDPRESS_APP ]; then
-  echo "WORDPRESS_APP not set so will be set to default 'none'"
-  WORDPRESS_APP="none"
+  echo "WORDPRESS_APP not set so will be set to default 'wordpress'"
+  WORDPRESS_APP="wordpress"
 fi
 if [ -z $DATABASE_NAME ]; then
-  echo 'Configuration error: BACKUP_NAME must be set'
+  print_err 'Configuration error: BACKUP_NAME must be set'
   exit 1
 fi
 if [ -z $DB_BACKUP_NAME ]; then
-  echo 'Configuration error: DB_BACKUP_NAME must be set'
+  print_err 'Configuration error: DB_BACKUP_NAME must be set'
   exit 1
 fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
@@ -93,16 +93,20 @@ if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
 #   print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
-PW="/root/wordpress_db_password.txt"
+PW="/root/${WORDPRESS_APP}_db_password.txt"
+if [ -z "$PW" ] && [ -z "$DB_ROOT_PASSWORD" ] || [ -z "$PW" ] && [ -z "$DB_PASSWORD" ]; then
+   print_err "Configuration error: DB_ROOT_PASSWORD and DB_Password must be set if wordpress not installed with 'https://github.com/basilhendroff/freenas-iocage-wordpress'"
+   exit 1
+fi
 if [ -z "$DB_ROOT_PASSWORD" ]; then
    print_msg "${PW} exists reading DB_ROOT_PASSWORD and saving to backup-config"
    DB_ROOT_PASSWORD=$(cat "${PW}" | grep "root" | cut -d ' ' -f 5)
-   echo "DB_ROOT_PASSWORD='${DB_ROOT_PASSWORD}'" >> ./backup-config
+   #echo "DB_ROOT_PASSWORD='${DB_ROOT_PASSWORD}'" >> ./backup-config
 fi
 if [ -z "$DB_PASSWORD" ]; then
    print_msg "${PW} exists reading DB_PASSWORD and saving to backup-config"
    DB_PASSWORD=$(cat "${PW}" | grep "user" | cut -d ' ' -f 7)
-   echo "DB_PASSWORD='$DB_PASSWORD'" >> ./backup-config
+   #echo "DB_PASSWORD='$DB_PASSWORD'" >> ./backup-config
 fi
 
 #  print_msg "MIGRATE_DB= "${MIGRATE_DB}
@@ -147,7 +151,7 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 #
    if [ ! -d "$RESTORE_DIR" ]
    then
-         echo "ERROR: Backup ${RESTORE_DIR} not found!"
+         print_err "ERROR: Backup ${RESTORE_DIR} not found!"
          exit 1
    fi
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
@@ -200,7 +204,7 @@ fi
    iocage restart ${WORDPRESS_APP}
    echo
 else
-  echo "Must enter '(B)ackup' to backup Wordpress or '(R)estore' to restore app directory: "
+  print_err "Must enter '(B)ackup' to backup Wordpress or '(R)estore' to restore app directory: "
   echo
 fi
 
