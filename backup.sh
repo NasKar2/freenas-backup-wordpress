@@ -81,15 +81,15 @@ fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
-   sed -i '' "s|OLD_IP=.*|OLD_IP=''|g" ./backup-config
-   sed -i '' "s|NEW_IP=.*|NEW_IP=''|g" ./backup-config
+   sed -i '' "s|OLD_IP=.*||g" ./backup-config
+   sed -i '' "s|NEW_IP=.*||g" ./backup-config
    print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
 fi
 if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
    MIGRATE_GATEWAY="TRUE"
    print_msg "Set to Migrate GATEWAY address from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
-   sed -i '' "s|OLD_GATEWAY=.*|OLD_GATEWAY=''|g" ./backup-config
-   sed -i '' "s|NEW_GATEWAY=.*|NEW_GATEWAY=''|g" ./backup-config
+   sed -i '' "s|OLD_GATEWAY=.*||g" ./backup-config
+   sed -i '' "s|NEW_GATEWAY=.*||g" ./backup-config
    print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
@@ -167,8 +167,8 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
-     sed -i '' "s|${OLD_IP}|""|" ./backup-config
-     sed -i '' "s|${NEW_IP}|""|" ./backup-config
+#     sed -i '' "s|${OLD_IP}||" ./backup-config
+#     sed -i '' "s|${NEW_IP}||" ./backup-config
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
   #  iocage exec "${WORDPRESS_APP}" chmod 660 
@@ -183,8 +183,8 @@ fi
 if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
      sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
-     sed -i '' "s|${OLD_GATEWAY}|""|" ./backup-config
-     sed -i '' "s|${NEW_GATEWAY}|""|" ./backup-config
+#     sed -i '' "s|${OLD_GATEWAY}||" ./backup-config
+#     sed -i '' "s|${NEW_GATEWAY}||" ./backup-config
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
   #  iocage exec "${WORDPRESS_APP}" chmod 660
