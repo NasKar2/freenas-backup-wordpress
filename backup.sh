@@ -109,10 +109,6 @@ if [ -z "$DB_PASSWORD" ]; then
    #echo "DB_PASSWORD='$DB_PASSWORD'" >> ./backup-config
 fi
 
-#  print_msg "MIGRATE_DB= "${MIGRATE_DB}
-#  MIGRATE_DB="TRUE"
-#  echo "MIGRATE_DB= "${MIGRATE_DB}
-#  print_msg "if then false MIGRATE_DB set to true"
 #
 # Check if Backup dir exists
 #
@@ -132,7 +128,6 @@ fi
 echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
       iocage exec ${WORDPRESS_APP} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "/usr/local/www/wordpress/${DB_BACKUP_NAME}""
-#      mv ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/files/${DB_BACKUP_NAME} ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${DB_BACKUP_NAME}
       print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
       tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} .
       print_msg "Tar file directory"
@@ -156,22 +151,12 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
    fi
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
-#     echo "tar -xzf "${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}" -C ${RESTORE_DIR}"
-# chmod 666 ${RESTORE_DIR}/${FILES}/${DB_BACKUP_NAME}
-  chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
-#if [ -d "$RESTORE_DIR" ]; then
-#     echo ${RESTORE_DIR}" is empty"
-#     iocage restart ${WORDPRESS_APP}
-#fi
-#echo $DB_ROOT_PASSWORD
+     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
+
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
-#     sed -i '' "s|${OLD_IP}||" ./backup-config
-#     sed -i '' "s|${NEW_IP}||" ./backup-config
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
-  #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
-  #  iocage exec "${WORDPRESS_APP}" chmod 660 
   if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
      iocage exec "${WORDPRESS_APP}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
   # edit wp-config.php
@@ -183,11 +168,7 @@ fi
 if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
      sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
-#     sed -i '' "s|${OLD_GATEWAY}||" ./backup-config
-#     sed -i '' "s|${NEW_GATEWAY}||" ./backup-config
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
-  #  echo "${RESTORE_SQL}/${DB_BACKUP_NAME}"
-  #  iocage exec "${WORDPRESS_APP}" chmod 660
      iocage exec "${WORDPRESS_APP}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
