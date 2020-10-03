@@ -53,16 +53,33 @@ NEW_IP="192.168.1.78" | NEW_IP="192.168.5.78"
 OLD_GATEWAY="192.168.5.1" | OLD_GATEWAY=""
 NEW_GATEWAY="192.168.1.1" | NEW_GATEWAY=""
 
-### Run a backup
+### Backup
 
-Change to the directory of the script
-```./backup.sh```
-Select B or b to backup and R or r to restore
+Backups can be automated or run interactively.
 
-### Automate Backup
+#### Interactive
 
-Create a cron job pointing to the backup.sh file and 
-Set cron="yes" in the backup-config
+```
+This is what a config file might look like for interactive backup.
+```
+
+#### Batch
+
+```
+This is what a config file might look like for automatic backup.
+```
+
+### Restore
+
+```
+This is what a config file might look like for a restore operation.
+```
+
+### Migrate
+
+```
+This is what a config might look like for a migration. (I'm still unlear as to the difference between a restore and migration?)
+```
 
 ## Disclaimer
 It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
