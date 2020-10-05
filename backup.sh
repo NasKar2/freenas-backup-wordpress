@@ -20,7 +20,6 @@ fi
 #
 # Initialize Variables
 #
-cron=""
 POOL_PATH="/mnt/v1"
 APPS_PATH="apps"
 BACKUP_PATH="backup/apps"
@@ -118,10 +117,11 @@ if [[ ! -d "${POOL_PATH}/${BACKUP_PATH}" ]]; then
 fi
 
 #
-# Ask to Backup or restore, if cron=yes just backup
+# Ask to Backup or restore, if run interactively
 #
-if [ "$cron" = "yes" ]; then
- choice="B"
+if ! [ -t 1 ] ; then
+  # Not run interactively
+  choice="B"
 else
  read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
 fi
