@@ -53,11 +53,6 @@ if [ -z $APPS_PATH ]; then
   print_err 'Configuration error: APPS_PATH must be set'
   exit 1                                                                                                        
 fi
-if [ -z $BACKUP_PATH ]; then
-  print_err 'Configuration error: BACKUP_PATH must be set'
-  exit 1                                                                                                        
-fi
-
 if [ -z $FILES_PATH ]; then
   print_msg "FILES_PATH not set will default to 'files'"
   FILES_PATH="files"
@@ -69,6 +64,14 @@ fi
 if [ -z $WORDPRESS_APP ]; then
   print_msg "WORDPRESS_APP not set so will be set to default 'wordpress'"
   WORDPRESS_APP="wordpress"
+fi
+if [ -z $BACKUP_PATH ]; then
+   if [ ! -d "${POOL_PATH}/${APP_PATH}/${WORDPRESS_APP}/backup" ]
+    then
+         mkdir -p "${POOL_PATH}/${APP_PATH}/${WORDPRESS_APP}/backup"
+   fi
+  print_msg "BACKUP_NAME not set will default to ${POOL_PATH}/${APP_PATH}/${WORDPRESS_APP}/backup"
+  BACKUP_PATH="${POOL_PATH}/${APP_PATH}/${WORDPRESS_APP}/backup"                                                                                             
 fi
 if [ -z $DATABASE_NAME ]; then
   print_err 'Configuration error: BACKUP_NAME must be set'
