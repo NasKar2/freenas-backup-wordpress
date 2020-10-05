@@ -74,7 +74,7 @@ if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="${POOL_PATH}/${APP_PATH}/${WORDPRESS_APP}/backup"                                                                                             
 fi
 if [ -z $DATABASE_NAME ]; then
-  print_err 'Configuration error: BACKUP_NAME must be set'
+  print_err 'Configuration error: DATABASE_NAME must be set'
   exit 1
 fi
 if [ -z $DB_BACKUP_NAME ]; then
