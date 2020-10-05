@@ -23,7 +23,7 @@ fi
 cron=""
 POOL_PATH="/mnt/v1"
 APPS_PATH="apps"
-BACKUP_PATH="backup/apps"
+BACKUP_PATH=""
 FILES_PATH="files"
 BACKUP_NAME="wordpress.tar.gz"
 WORDPRESS_APP="wordpress"
