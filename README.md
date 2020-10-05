@@ -44,15 +44,11 @@ DB_ROOT_PASSWORD="8109823ojf;ljadsf;lj"
 DB_PASSWORD="lknv;asdjf72905729039"
 ```
 
-### Optional Migration of the wordpress can be done specifying the old and new IPs and old and new gateways.  These parameters will be removed after the restore is complete.
-Data needs to be changed to match your requirements. Remember the password to access the web interface will change back to restored backup.
+### Optional Migration of the wordpress
 
-Change IP & Gateway | Change Just IP
-------------------- | --------------
-OLD_IP="192.168.5.77" | OLD_IP="192.168.5.77"
-NEW_IP="192.168.1.78" | NEW_IP="192.168.5.78"
-OLD_GATEWAY="192.168.5.1" | OLD_GATEWAY=""
-NEW_GATEWAY="192.168.1.1" | NEW_GATEWAY=""
+This can be done specifying the old and new IPs and old and new gateways. See examples below.
+These parameters will be removed from the backup-config after the restore is complete.
+Data needs to be changed to match your requirements. Remember the password to access the web interface will change back to restored backup.
 
 ### Example backup-config files
 
