@@ -20,7 +20,6 @@ DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
 ```
 Many of the options are self-explanatory, and all should be adjusted to suit your needs, but only a few are mandatory. The mandatory options are:
-* cron Set this variable to "yes" if you want to automate the backup. You will not get the option to restore until you set it back to blank
 * APPS_PATH is the location of you applications data usually /mnt/v1/apps
 * BACKUP_PATH is the location to store your backups in my setup /mnt/v1/backup
 * BACKUP_NAME is the name of the backup file in my setup wordpress.tar.gz"
