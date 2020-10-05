@@ -21,7 +21,7 @@ fi
 # Initialize Variables
 #
 cron=""
-POOL_PATH="/mnt/v1"
+POOL_PATH=""
 APPS_PATH="apps"
 BACKUP_PATH="backup/apps"
 FILES_PATH="files"
