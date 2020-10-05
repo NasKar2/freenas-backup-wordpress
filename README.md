@@ -5,14 +5,13 @@ Works with the Wordpress install script from https://github.com/basilhendroff/fr
 
 Will pull the root and user password saved from the file /root/wordpress_db_password.txt created from the install script mentioned above.
 
-You can manually enter the DB_ROOT_PASSWORD and DB_PASSWORD in the backup-config file
+If you're not using the script, you can manually enter the DB_ROOT_PASSWORD and DB_PASSWORD in the backup-config file
 
 ## Prerequisites 
 
 **You must have a working install of Wordpress.** Create a config file called backup-config.  This file should be owned by root and only accessible by root user. ```chmod 600 backup-config```
 
 ```
-cron=""
 APPS_PATH="apps"
 BACKUP_PATH="backup"
 BACKUP_NAME="wordpress.tar.gz"
@@ -61,8 +60,7 @@ Select B or b to backup and R or r to restore
 
 ### Automate Backup
 
-Create a cron job pointing to the backup.sh file and 
-Set cron="yes" in the backup-config
+Create a cron job pointing to the backup.sh file.
 
 ## Disclaimer
 It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
