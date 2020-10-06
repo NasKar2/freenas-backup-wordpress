@@ -50,8 +50,8 @@ if [ -z $POOL_PATH ]; then
   print_msg "POOL_PATH defaulting to "$POOL_PATH
 fi
 if [ -z $APPS_PATH ]; then
-  print_err 'Configuration error: APPS_PATH must be set'
-  exit 1                                                                                                        
+  APPS_PATH="apps"
+  print_msg "APPS_PATH defaulting to 'apps'"
 fi
 if [ -z $FILES_PATH ]; then
   print_msg "FILES_PATH not set will default to 'files'"
@@ -59,8 +59,7 @@ if [ -z $FILES_PATH ]; then
 fi
 if [ -z $BACKUP_NAME ]; then
   BACKUP_NAME="${JAIL_NAME}.tar.gz"
-  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"
-  exit 1                                                                                                        
+  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"                                                 
 fi
 if [ -z $JAIL_NAME ]; then
   print_msg "JAIL_NAME not set so will be set to default 'wordpress'"
@@ -75,12 +74,12 @@ if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"                                                                                             
 fi
 if [ -z $DATABASE_NAME ]; then
-  print_err 'Configuration error: DATABASE_NAME must be set'
-  exit 1
+  DATABASE_NAME="wordpress"
+  print_msg "DATABASE_NAME not set will default to wordpress"
 fi
 if [ -z $DB_BACKUP_NAME ]; then
-  print_err 'Configuration error: DB_BACKUP_NAME must be set'
-  exit 1
+  DB_BACKUP_NAME="wordpress.sql"
+  print_msg "DB_BACKUP_NAME not set will default to wordpress.sql"
 fi
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
