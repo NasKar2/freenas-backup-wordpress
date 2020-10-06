@@ -20,8 +20,8 @@ fi
 #
 # Initialize Variables
 #
-cron=""
-POOL_PATH=""
+
+POOL_PATH="/mnt/v1"
 APPS_PATH="apps"
 BACKUP_PATH="backup/apps"
 FILES_PATH="files"
@@ -118,10 +118,11 @@ if [[ ! -d "${POOL_PATH}/${BACKUP_PATH}" ]]; then
 fi
 
 #
-# Ask to Backup or restore, if cron=yes just backup
+# Ask to Backup or restore, if run interactively
 #
-if [ "$cron" = "yes" ]; then
- choice="B"
+if ! [ -t 1 ] ; then
+  # Not run interactively
+  choice="B"
 else
  read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
 fi
@@ -129,7 +130,7 @@ echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
       iocage exec ${WORDPRESS_APP} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "/usr/local/www/wordpress/${DB_BACKUP_NAME}""
       print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
-      tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} . -C ${PW}
+      tar -czf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${WORDPRESS_APP}/${FILE_PATH} .
 
 #tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
 #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
