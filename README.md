@@ -1,48 +1,91 @@
 # freenas-backup-wordpress
-Backup and Restore Wordpress install
+Script to backup, restore and migrate Wordpress data. Backup files are stored under your WordPress root in the subdirectory `backup`.
 
-Works with the Wordpress install script from https://github.com/basilhendroff/freenas-iocage-wordpress
+The script will work with any WordPress data source, however, setting it up is much simpler if you've installed WordPress using https://github.com/basilhendroff/freenas-iocage-wordpress
 
-Will pull the root and user password saved from the file /root/wordpress_db_password.txt created from the install script mentioned above.
+## Status
+This script will work with FreeNAS 11.3, and it should also work with TrueNAS CORE 12.0.  Due to the EOL status of FreeBSD 11.2, it is unlikely to work reliably with earlier releases of FreeNAS.
 
-You can manually enter the DB_ROOT_PASSWORD and DB_PASSWORD in the file /root/wordpress_db_password.txt
+## Usage
 
-## Prerequisites 
+### Prerequisites
+The backup script assumes that your WordPress data is kept outside the WordPress jail.
 
-**You must have a working install of Wordpress.** Create a config file called backup-config.  This file should be owned by root and only accessible by root user. ```chmod 600 backup-config```
+### Installation
+Download the repository to a convenient directory on your FreeNAS system by changing to that directory and running `git clone https://github.com/naskar2/freenas-backup-wordpress`.  Then change into the new `freenas-backup-wordpress` directory.
 
-```
-cron=""
-APPS_PATH="apps"
-BACKUP_NAME="wordpress.tar.gz"
-DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
-```
-Many of the options are self-explanatory, and all should be adjusted to suit your needs, but only a few are mandatory. The mandatory options are:
-* cron Set this variable to "yes" if you want to automate the backup. You will not get the option to restore until you set it back to blank
-* APPS_PATH is the location of you applications data usually /mnt/v1/apps
-* BACKUP_NAME is the name of the backup file in my setup wordpress.tar.gz"
-* DATABASE_NAME is the name of your wordpress database
-* DB_BACKUP_NAME is the name of the wordpress database files wordpress.sql
-
-### Optional Parameters
-
-* POOL_PATH is the location of your pool in my setup /mnt/v1. It will be set automatically if left blank
-* FILES_PATH is the location to the wordpress files data in my setup /mnt/v1/apps/wordpress/files.  Leave blank if the files data is in /mnt/v1/apps/wordpress. Will default to 'files'
-* BACKUP_PATH is the location to store your backups in my setup /mnt/v1/apps/wordpress/backup
-* WORDPRESS_APP is the name of the jail wordpress it is installed in so it's data will be in /mnt/v1/apps/wordpress. Will default to 'wordpress'.
-
-### Other Optional parameters can be set if you didn't install wordpress with install script from https://github.com/basilhendroff/freenas-iocage-wordpress
-
-If you used the [script](https://github.com/basilhendroff/freenas-iocage-wordpress) to install wordpress, the backup script will read the /root/wordpress_db_password.txt file (or tech_db_password if WORDPRESS_APP="tech"). 
-If you installed wordpress without the script you must specify the password parameters below.
-Passwords in this document are just random examples.
-**If resintalling Wordpress without the script with new PASSWORDS update these 2 lines from the /root/wordpress_db_password.txt**
+### Setup
+If you've used the previously mentioned install script and accepted the default WordPress jail name `wordpress`, additional setup isn't necessary for the backup script to run. If you have changed the jail name, or have installed WordPress using another method, then create a file called `backup-config` with your favorite text editor.  In its minimal form, it would look something like this:
 
 ```
-DB_ROOT_PASSWORD="8109823ojf;ljadsf;lj"
-DB_PASSWORD="lknv;asdjf72905729039"
+JAIL_NAME="wp-blog"
 ```
+All options have sensible defaults, which can be adjusted if needed. These are:
+
+- JAIL_NAME: The name of the jail, defaults to `wordpress`.
+- BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
+- DB_ROOT_PASSWORD: Password for DB user root. Default is to read this from /root/wordpress_db_password.txt if the install script was used.
+- DB_PASSWORD: Password for DB user. Default is to read this from /root/wordpress_db_password.txt if the install script was used. 
+- DB_USER: Name of the DB user. Default assumes the user is `wordpress`.
+- BACKUP_NAME: The name of the backup file. Defaults to `<JAIL_NAME>.tar.gz`. 
+- DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
+- DB_SQL: The SQL file used used to backup/restore your WordPress database. Defaults to `wordpress.sql`.
+
+Some examples follow:
+
+#### 1. *'I've used the install script, and accepted the default jail name of `wordpress`.'*
+A backup-config is not required.
+
+#### 2. *'I'm using the WordPress jail name `personal`.'*
+backup-config:
+```
+JAIL_NAME="personal"
+```
+Note: be aware that the jail name is case sensitive.
+
+#### 3. *`I also want my backups stored in the pool under a backup root.'*
+```
+JAIL_NAME="personal"
+BACKUP_PATH="/mnt/tank/backup/personal"
+```
+
+#### 4. *'I haven't used the install script. My DB user is `naskar`.*
+backup-config:
+```
+JAIL_NAME="personal"
+BACKUP_PATH="/mnt/tank/backup/personal"
+DB_ROOT_PASSWORD="abracadabra"
+DB_PASSWORD="alakazam"
+DB_USER="naskar"
+```
+
+## Backup
+Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
+
+To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation.
+
+## Restore
+**WARNING: A restore overwrites any existing WordPress data!!!**
+
+Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+You will be promoted to reconfirm the operation `Are you sure? (y/N)`. The default action is to abort. Enter (Y)es if you are sure you want to proceed with the restore operation.
+
+## Migrate
+**WARNING: A restore overwrites any existing WordPress data!!!**
+
+Once you've prepared the configuration file (see examples below), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+
+
+## Support and Discussion
+Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-backups/)
+
+Questions or issues about this resource can be raised in [this forum thread](https://www.ixsystems.com/community/threads/wordpress-backup-restore-and-migrate-script.87776/). Support is limited to getting the backup script working with your WordPress jail. 
+
+## Disclaimer
+It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
+
+
+## To be  reviewed at a later stage
 
 ### Optional Migration of the wordpress
 
@@ -50,29 +93,8 @@ This can be done specifying the old and new IPs and old and new gateways. See ex
 These parameters will be removed from the backup-config after the restore is complete.
 Data needs to be changed to match your requirements. Remember the password to access the web interface will change back to restored backup.
 
-### Example backup-config files
-
-**Backup**
-```
-cron=""
-APPS_PATH="apps"
-BACKUP_NAME="wordpress.tar.gz"
-DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
-```
-
-**Restore**
-```
-cron=""
-APPS_PATH="apps"
-BACKUP_NAME="wordpress.tar.gz"
-DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
-```
-
 **Migrate IP**
 ```
-cron=""
 APPS_PATH="apps"
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
@@ -83,7 +105,6 @@ NEW_IP="192.168.5.77"
 
 **Migrate IP and Gateway**
 ```
-cron=""
 APPS_PATH="apps"
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
@@ -93,17 +114,3 @@ NEW_IP="192.168.1.77"
 OLD_GATEWAY="192.168.5.1"
 NEW_GATEWAY="192.168.1.1
 ```
-
-### Run a backup
-
-Change to the directory of the script
-```./backup.sh```
-Select B or b to backup and R or r to restore
-
-### Automate Backup
-
-Create a cron job pointing to the backup.sh file and 
-Set cron="yes" in the backup-config
-
-## Disclaimer
-It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
