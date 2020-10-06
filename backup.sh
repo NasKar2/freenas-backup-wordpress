@@ -96,18 +96,21 @@ if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
    print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
-# Check for the existence of the password file
+# Check for the existence of the password file.
 if ! [ -e "/root/${WORDPRESS_APP}_db_password.txt" ]; then
-   print_err "Password file not detected! DB_ROOT_PASSWORD and DB_PASSWORD must be set in backup-config."
-   exit 1
+   # It doesn't exist. Have the passwords been supplied in backup-config?
+   if [ -z "${DB_ROOT_PASSWORD}" ] || [ -z "${DB_PASSWORD}" ]; then
+      print_err "Password file not detected! DB_ROOT_PASSWORD and DB_PASSWORD must be set in backup-config."
+      exit 1
+   fi   
 else
-  # Check for the existence of password variables
-  . "/root/${WORDPRESS_APP}_db_password.txt"
-  if [ -z "${DB_ROOT_PASSWORD}" ] || [ -z "${DB_PASSWORD}" ]; then
-    print_err "The password file is corrupt."
-    exit 1
-  fi
-fi
+   # It does exist. Check for the existence of password variables in the password file.
+   . "/root/${WORDPRESS_APP}_db_password.txt"
+   if [ -z "${DB_ROOT_PASSWORD}" ] || [ -z "${DB_PASSWORD}" ]; then
+      print_err "The password file is corrupt."
+      exit 1
+   fi
+ fi
 
 #
 # Check if Backup dir exists
