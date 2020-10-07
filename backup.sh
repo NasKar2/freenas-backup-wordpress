@@ -21,14 +21,14 @@ fi
 # Initialize Variables
 #
 
-POOL_PATH="/mnt/v1"
-APPS_PATH="apps"
-BACKUP_PATH="backup/apps"
-FILES_PATH="files"
-BACKUP_NAME="wordpress.tar.gz"
-JAIL_NAME="wordpress"
-DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
+POOL_PATH=""
+APPS_PATH=""
+BACKUP_PATH=""
+FILES_PATH=""
+BACKUP_NAME=""
+JAIL_NAME=""
+DATABASE_NAME=""
+DB_BACKUP_NAME=""
 IP_OLD=""
 IP_NEW=""
 OLD_GATEWAY=""
@@ -36,13 +36,13 @@ NEW_GATEWAY=""
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
 
-
+#if ! [ -e "backup-config" ]; then 
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 . $SCRIPTPATH/backup-config
-
+#fi
 #
-# Check if appsdir-config created correctly
+# Check if backup-config created correctly
 #
 
 if [ -z $POOL_PATH ]; then
@@ -57,21 +57,22 @@ if [ -z $FILES_PATH ]; then
   print_msg "FILES_PATH not set will default to 'files'"
   FILES_PATH="files"
 fi
-if [ -z $BACKUP_NAME ]; then
-  BACKUP_NAME="${JAIL_NAME}.tar.gz"
-  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"                                                 
-fi
 if [ -z $JAIL_NAME ]; then
   print_msg "JAIL_NAME not set so will be set to default 'wordpress'"
   JAIL_NAME="wordpress"
 fi
+if [ -z $BACKUP_NAME ]; then
+  BACKUP_NAME="${JAIL_NAME}.tar.gz"
+  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"                                                 
+fi
 if [ -z $BACKUP_PATH ]; then
    if [ ! -d "${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup" ]
     then
-         mkdir -p "${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"
+#      echo "mkdir in backup_path"   
+      mkdir -p "${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"
    fi
   print_msg "BACKUP_NAME not set will default to ${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"
-  BACKUP_PATH="${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"                                                                                             
+  BACKUP_PATH="${JAIL_NAME}/backup"                                                                                             
 fi
 if [ -z $DATABASE_NAME ]; then
   DATABASE_NAME="wordpress"
@@ -116,10 +117,13 @@ else
 # Check if Backup dir exists
 #
 if [[ ! -d "${POOL_PATH}/${BACKUP_PATH}" ]]; then
+   echo "mkdir in check if backup dir exists" 
    mkdir ${POOL_PATH}/${BACKUP_PATH}
    print_msg "directory "${POOL_PATH}/${BACKUP_PATH} "created"
 fi
-
+#echo $POOL_PATH
+#echo $APPS_PATH
+#echo $BACKUP_NAME
 #
 # Ask to Backup or restore, if run interactively
 #
