@@ -66,13 +66,13 @@ if [ -z $BACKUP_NAME ]; then
   print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"                                                 
 fi
 if [ -z $BACKUP_PATH ]; then
-   if [ ! -d "${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup" ]
+   if [ ! -d "${POOL_PATH}/backup/${JAIL_NAME}" ]
     then
 #      echo "mkdir in backup_path"   
-      mkdir -p "${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"
+      mkdir -p "${POOL_PATH}/backup/${JAIL_NAME}"
    fi
-  print_msg "BACKUP_NAME not set will default to ${POOL_PATH}/${APP_PATH}/${JAIL_NAME}/backup"
-  BACKUP_PATH="${JAIL_NAME}/backup"                                                                                             
+  BACKUP_PATH="backup/${JAIL_NAME}"
+  print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/backup/${JAIL_NAME}"                                                                                             
 fi
 if [ -z $DATABASE_NAME ]; then
   DATABASE_NAME="wordpress"
