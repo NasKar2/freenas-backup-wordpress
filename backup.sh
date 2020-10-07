@@ -163,7 +163,7 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
    fi
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
-     mv ${RESTORE_DIR}/${FILES_PATH}/"${JAIL_NAME}_db_password.txt" /root/"${JAIL_NAME}_db_password.txt" 
+#    mv ${RESTORE_DIR}/${FILES_PATH}/"${JAIL_NAME}_db_password.txt" /root/"${JAIL_NAME}_db_password.txt" 
     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
 
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
