@@ -31,6 +31,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - BACKUP_NAME: The name of the backup file. Defaults to `<JAIL_NAME>.tar.gz`. 
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
 - DB_SQL: The SQL file used used to backup/restore your WordPress database. Defaults to `wordpress.sql`.
+- MAX_NUM_BACKUPS: The maximum number of backups to keep.  Will default to 2.
 
 Some examples follow:
 
@@ -62,13 +63,14 @@ DB_USER="naskar"
 
 ## Backup
 Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
-
+The script will keep 2 backups deleting the oldest unless you add the MAX_NUM_BACKUPS to the backup-config. 
 To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation like a cron task in the FreeNAS GUI.
 
 ## Restore
 **WARNING: A restore overwrites any existing WordPress data!!!**
 
 Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
 
 
 ## Migrate

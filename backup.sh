@@ -35,6 +35,7 @@ OLD_GATEWAY=""
 NEW_GATEWAY=""
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
+MAX_NUM_BACKUPS="2"
 
 #if ! [ -e "backup-config" ]; then 
 SCRIPT=$(readlink -f "$0")
@@ -62,8 +63,8 @@ if [ -z $JAIL_NAME ]; then
   JAIL_NAME="wordpress"
 fi
 if [ -z $BACKUP_NAME ]; then
-  BACKUP_NAME="${JAIL_NAME}.tar.gz"
-  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}.tar.gz"                                                 
+  BACKUP_NAME="${JAIL_NAME}$(date +'_%F_%H%M').tar.gz"
+  print_msg "BACKUP_NAME not set will default to ${JAIL_NAME}$(date +'_%F_%H%M').tar.gz"                                                 
 fi
 if [ -z $BACKUP_PATH ]; then
    if [ ! -d "${POOL_PATH}/backup/${JAIL_NAME}" ]
@@ -144,13 +145,42 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 
       print_msg "Tar file directory"
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME}"
-      echo
+      echo "***********************************"
+
+#
+# Delete old backups
+#
+if [ $MAX_NUM_BACKUPS -ne 0 ]
+then
+      print_msg "Maximum number of backups is $MAX_NUM_BACKUPS"
+#     echo "MAX_NUM_BACKUPS is not 0"
+        NUM_BACKUPS="$(ls -l ${POOL_PATH}/${BACKUP_PATH} | grep -c '\wordpress.*.tar.gz$')"
+#     echo "NUM_BACKUPS=" $NUM_BACKUPS
+        NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
+
+#     echo "NUM_FILES_REMOVE=" $NUM_FILES_REMOVE
+
+while [ $NUM_FILES_REMOVE -gt 0 ]
+do
+#echo
+#echo "number Files to remove=" $NUM_FILES_REMOVE
+FILE_TO_REMOVE="$(ls -t ${POOL_PATH}/${BACKUP_PATH} | tail -1)"
+print_msg "Removing Files ${FILE_TO_REMOVE}"
+NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
+rm ${POOL_PATH}/${BACKUP_PATH}/${FILE_TO_REMOVE}
+done
+fi
+
+echo
+print_msg "DONE!"
+
 
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL_NAME}
 RESTORE_SQL="/usr/local/www/wordpress"
 APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
 CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
+backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 #echo "APPS_DIR_SQL =${APPS_DIR_SQL}"
 
 #
@@ -161,6 +191,23 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
          print_err "ERROR: Backup ${RESTORE_DIR} not found!"
          exit 1
    fi
+
+#
+# Pick the restore directory *don't edit this section*
+#
+cd "${POOL_PATH}/${BACKUP_PATH}"
+shopt -s dotglob
+shopt -s nullglob
+array=(${JAIL_NAME}*.tar.gz)
+for dir in "${array[@]}"; do echo; done
+
+for dir in */; do echo; done
+
+echo "There are ${#array[@]} backups available, pick the one to restore"; \
+select dir in "${array[@]}"; do echo; break; done
+
+echo "You choose ${dir}"
+BACKUP_NAME=$dir
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
 #    mv ${RESTORE_DIR}/${FILES_PATH}/"${JAIL_NAME}_db_password.txt" /root/"${JAIL_NAME}_db_password.txt" 
