@@ -25,9 +25,13 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 
 - JAIL_NAME: The name of the jail, defaults to `wordpress`.
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
+- APPS_PATH: Location of apps
+- FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress. Or 'files' if pool/apps/wordpress/files
 - DB_ROOT_PASSWORD: Password for DB user root. Default is to read this from /root/wordpress_db_password.txt if the install script was used or specify this variable in the backup-config file. 
 - DB_PASSWORD: Password for DB user. Default is to read this from /root/wordpress_db_password.txt if the install script was used or specify this variable in the backup-config file. 
 - DB_USER: Name of the DB user. Default assumes the user is `wordpress`.
+- DATABASE_NAME: Defaults to wordpress
+- DB_BACKUP_NAME: Defaults to wordpress.sql
 - BACKUP_NAME: The name of the backup file. Defaults to `<JAIL_NAME>.tar.gz`. 
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
 - DB_SQL: The SQL file used used to backup/restore your WordPress database. Defaults to `wordpress.sql`.

@@ -21,7 +21,6 @@ fi
 # Initialize Variables
 #
 
-POOL_PATH=""
 APPS_PATH=""
 BACKUP_PATH=""
 FILES_PATH=""
