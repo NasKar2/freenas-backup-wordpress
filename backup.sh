@@ -28,6 +28,7 @@ BACKUP_NAME=""
 JAIL_NAME=""
 DATABASE_NAME=""
 DB_BACKUP_NAME=""
+JAIL_FILES_LOC=""
 IP_OLD=""
 IP_NEW=""
 OLD_GATEWAY=""
@@ -49,6 +50,10 @@ if [ -z $POOL_PATH ]; then
   POOL_PATH="/mnt/$(iocage get -p)"
   print_msg "POOL_PATH defaulting to "$POOL_PATH
 fi
+if [ -z $JAIL_NAME ]; then
+  JAIL_NAME="wordpress"
+  print_msg "JAIL_NAME not set will default to 'wordpress'"
+fi
 if [ -z $APPS_PATH ]; then
   APPS_PATH="apps"
   print_msg "APPS_PATH defaulting to 'apps'"
@@ -65,6 +70,11 @@ if [ -z $DB_BACKUP_NAME ]; then
   DB_BACKUP_NAME="wordpress.sql"
   print_msg "DB_BACKUP_NAME not set will default to wordpress.sql"
 fi
+if [ -z $JAIL_FILES_LOC ]; then
+  JAIL_FILES_LOC="/usr/local/www/wordpress"
+  print_msg "JAIL_FILES_LOC not set will default to '/usr/loca/www/wordpress'"
+fi
+
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
@@ -176,7 +186,7 @@ DB_PASSWORD=""
 #echo "ROOT PASSWORD is $DB_ROOT_PASSWORD"
 #echo "PASSWORD is $DB_PASSWORD"
 echo
-      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "/usr/local/www/wordpress/${DB_BACKUP_NAME}""
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
       print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
 #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILE_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILE_PATH} .
@@ -242,8 +252,8 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 #
    if [ ! -d "$RESTORE_DIR" ]
    then
-         print_err "ERROR: Backup ${RESTORE_DIR} not found!"
-         exit 1
+         mkdir -p $RESTORE_DIR
+         print_msg "Create directory ${RESTORE_DIR}"
    fi
 
 #
