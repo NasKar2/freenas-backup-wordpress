@@ -201,23 +201,24 @@ echo
    if [ $MAX_NUM_BACKUPS -ne 0 ]
      then
       print_msg "Maximum number of backups is $MAX_NUM_BACKUPS"
-#     echo "MAX_NUM_BACKUPS is not 0"
-        NUM_BACKUPS="$(ls -l ${POOL_PATH}/backup/${JAIL} | grep -c "${JAIL}.*.tar.gz$")"
-#       NUM_BACKUPS="$(ls -l ${POOL_PATH}/backup/${JAIL} | grep -c '\${JAIL}.*.tar.gz$')"
-#     echo "NUM_BACKUPS=" $NUM_BACKUPS
-        NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
+#        echo "MAX_NUM_BACKUPS is not 0"
+         shopt -s nullglob
+         BACKUP_FILES=( "${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${JAIL}"*.tar.gz )
+         NUM_BACKUPS=${#BACKUP_FILES[@]}
+#        NUM_BACKUPS="$(ls -l ${POOL_PATH}/backup/${JAIL} | grep -c "${JAIL}.*.tar.gz$")"
+#        echo "NUM_BACKUPS=" $NUM_BACKUPS
+         NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
 
-#     echo "NUM_FILES_REMOVE=" $NUM_FILES_REMOVE
+#        echo "NUM_FILES_REMOVE=" $NUM_FILES_REMOVE
 
-   while [ $NUM_FILES_REMOVE -gt 0 ]
-   do
-#   echo
-#   echo "number Files to remove=" $NUM_FILES_REMOVE
-   FILE_TO_REMOVE="$(ls -t ${POOL_PATH}/${BACKUP_PATH}/${JAIL} | grep "${JAIL}.*.tar.gz$" | tail -1)"
-   print_msg "Removing Files ${FILE_TO_REMOVE}"
-   NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
-   rm ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${FILE_TO_REMOVE}
-   done
+           while [ $NUM_FILES_REMOVE -gt 0 ]
+           do
+#            echo "number Files to remove=" $NUM_FILES_REMOVE
+             FILE_TO_REMOVE=${BACKUP_FILES[0]}
+             print_msg "Removing Files ${FILE_TO_REMOVE}"
+             NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
+             rm ${FILE_TO_REMOVE}
+           done
    fi
 
 echo
