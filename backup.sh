@@ -219,6 +219,7 @@ echo
              NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
              rm ${FILE_TO_REMOVE}
            done
+         shopt -u nullglob  
    fi
 
 echo
@@ -261,8 +262,8 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 # Pick the restore directory *don't edit this section*
 #
 cd "${POOL_PATH}/backup/${JAIL}"
-shopt -s dotglob
-shopt -s nullglob
+#shopt -s dotglob
+shopt -s  nullglob
 array=(${JAIL}*.tar.gz)
 for dir in "${array[@]}"; do echo; done
 
@@ -272,6 +273,9 @@ echo "There are ${#array[@]} backups available, pick the one to restore"; \
 select dir in "${array[@]}"; do echo; break; done
 
 print_msg "You choose ${dir}"
+#shopt -u dotglob
+shopt -u nullglob
+
 BACKUP_NAME=$dir
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
