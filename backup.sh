@@ -261,7 +261,7 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 #
 # Pick the restore directory *don't edit this section*
 #
-cd "${POOL_PATH}/backup/${JAIL}"
+cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 #shopt -s dotglob
 shopt -s  nullglob
 array=(${JAIL}*.tar.gz)
