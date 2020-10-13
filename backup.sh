@@ -269,7 +269,13 @@ for dir in "${array[@]}"; do echo; done
 
 for dir in */; do echo; done
 
-echo "There are ${#array[@]} backups available, pick the one to restore"; \
+if [ ${#jailarray[@]} = 0 ]; then
+print_err "There are ${#jailarray[@]} .tar.gz files in the backup directory"
+exit 1
+else
+echo "There are ${#jailarray[@]} backups available, pick the one to restore"; \
+fi
+
 select dir in "${array[@]}"; do echo; break; done
 
 print_msg "You choose ${dir}"
