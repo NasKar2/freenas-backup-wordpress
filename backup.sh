@@ -230,16 +230,18 @@ done
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 
 # LOOP Restore #
-
+echo "JAIL_NAME is ${JAIL_NAME}"
 array=(${JAIL_NAME})
-#for JAIL in "${array[@]}"; do echo; done
+for JAIL in "${array[@]}"; do echo ; done
 
-#for JAIL in */; do echo; done
+for JAIL in */; do echo; done
 
 if [[ "${#array[@]}" > "1" ]]; then
 echo "There are ${#array[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array[@]}"; do echo; break; done
 print_msg "You choose the jail '${JAIL}' to restore"
+else
+JAIL="$JAIL_NAME"
 fi
 
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
@@ -269,7 +271,7 @@ for dir in "${array[@]}"; do echo; done
 
 for dir in */; do echo; done
 
-if [ ${#jailarray[@]} = 0 ]; then
+if [ ${#array[@]} = 0 ]; then
 print_err "There are ${#jailarray[@]} .tar.gz files in the backup directory"
 exit 1
 else
