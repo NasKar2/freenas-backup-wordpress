@@ -230,7 +230,7 @@ done
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 
 # LOOP Restore #
-echo "JAIL_NAME is ${JAIL_NAME}"
+#echo "JAIL_NAME is ${JAIL_NAME}"
 array=(${JAIL_NAME})
 for JAIL in "${array[@]}"; do echo ; done
 
