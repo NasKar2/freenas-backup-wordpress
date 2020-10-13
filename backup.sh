@@ -204,20 +204,21 @@ echo
 #        echo "MAX_NUM_BACKUPS is not 0"
          shopt -s nullglob
          BACKUP_FILES=( "${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${JAIL}"*.tar.gz )
+#        for JAIL in "${BACKUP_FILES[@]}"; do echo $JAIL; done
          NUM_BACKUPS=${#BACKUP_FILES[@]}
-#        NUM_BACKUPS="$(ls -l ${POOL_PATH}/backup/${JAIL} | grep -c "${JAIL}.*.tar.gz$")"
 #        echo "NUM_BACKUPS=" $NUM_BACKUPS
          NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
 
 #        echo "NUM_FILES_REMOVE=" $NUM_FILES_REMOVE
-
+        NUM=0
            while [ $NUM_FILES_REMOVE -gt 0 ]
            do
 #            echo "number Files to remove=" $NUM_FILES_REMOVE
-             FILE_TO_REMOVE=${BACKUP_FILES[0]}
+             FILE_TO_REMOVE=${BACKUP_FILES[${NUM}]}
              print_msg "Removing Files ${FILE_TO_REMOVE}"
              NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
-             rm ${FILE_TO_REMOVE}
+             NUM=${NUM}-1
+             rm $FILE_TO_REMOVE
            done
          shopt -u nullglob  
    fi
@@ -272,10 +273,10 @@ for dir in "${array[@]}"; do echo; done
 for dir in */; do echo; done
 
 if [ ${#array[@]} = 0 ]; then
-print_err "There are ${#jailarray[@]} .tar.gz files in the backup directory"
+print_err "There are ${#array[@]} .tar.gz files in the backup directory"
 exit 1
 else
-echo "There are ${#jailarray[@]} backups available, pick the one to restore"; \
+echo "There are ${#array[@]} backups available, pick the one to restore"; \
 fi
 
 select dir in "${array[@]}"; do echo; break; done
