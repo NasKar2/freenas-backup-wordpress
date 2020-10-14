@@ -108,7 +108,7 @@ OLD_GATEWAY="192.168.5.1"
 NEW_GATEWAY="192.168.1.1
 ```
 
-##Multiple Wordpress Jails
+## Multiple Wordpress Jails
 If you have multiple wordpress sites you can list them in JAIL_NAME separated by a space.  
 All the listed wordpress jails will be backed up and you will be asked which one you want to restore if you have more than one. 
 ```
