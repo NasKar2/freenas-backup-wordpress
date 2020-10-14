@@ -217,7 +217,9 @@ echo
              FILE_TO_REMOVE=${BACKUP_FILES[${NUM}]}
              print_msg "Removing Files ${FILE_TO_REMOVE}"
              NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
-             NUM=${NUM}-1
+             NUM=$((NUM+1))
+#echo "NUM =${NUM}"
+#echo "NUM_FILES_REMOVE =${NUM_FILES_REMOVE}"
              rm $FILE_TO_REMOVE
            done
          shopt -u nullglob  
