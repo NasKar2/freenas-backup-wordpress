@@ -95,17 +95,12 @@ fi
 #
 DATE=$(date +'_%F_%H%M')
 array=(${JAIL_NAME})
-#echo "There are ${#array[@]} jails"
 
 for dir in "${array[@]}"; do echo; done
 
-#for dir in */; do echo; done
-
 for JAIL in "${array[@]}"
 do
-#echo $JAIL
 BACKUP_NAME="${JAIL}${DATE}"
-#echo $BACKUP_NAME
 
 # Check for the existence of the password file.
 
@@ -130,8 +125,6 @@ if [ -z $BACKUP_PATH ]; then
   print_msg="BACUP_PATH is ${BACKUP_PATH}"
    if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
     then
-#      echo "mkdir in backup_path"
-#      BACKUP_PATH="backup/${JAIL}"
        mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
        print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
     fi
@@ -147,8 +140,6 @@ else
    print_msg "Backup location ${POOL_PATH}/backup/${JAIL} already exists"
 fi
 
-#echo "ROOT PASSWORD is $DB_ROOT_PASSWORD"
-#echo "PASSWORD is $DB_PASSWORD"
 echo
 done
 #
@@ -176,11 +167,6 @@ for i in $@
 #echo "There were $# arguments"
 fi
 
-#array=(${JAIL_NAME})
- 
-#for dir in "${array[@]}"; do print_msg "There are ${#array[@]} jails ${dir}"; done
-#for dir in */; do echo; done
-#print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
 for JAIL in "${array[@]}"
 do
 echo "*********************************************************************"
@@ -194,8 +180,6 @@ DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
    . "/root/${JAIL}_db_password.txt"
 
-#echo "ROOT PASSWORD is $DB_ROOT_PASSWORD"
-#echo "PASSWORD is $DB_PASSWORD"
 echo
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
       print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
@@ -212,25 +196,18 @@ echo
    if [ $MAX_NUM_BACKUPS -ne 0 ]
      then
       print_msg "Maximum number of backups is $MAX_NUM_BACKUPS"
-#        echo "MAX_NUM_BACKUPS is not 0"
          shopt -s nullglob
          BACKUP_FILES=( "${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${JAIL}"*.tar.gz )
-#        for JAIL in "${BACKUP_FILES[@]}"; do echo $JAIL; done
          NUM_BACKUPS=${#BACKUP_FILES[@]}
-#        echo "NUM_BACKUPS=" $NUM_BACKUPS
          NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
 
-#        echo "NUM_FILES_REMOVE=" $NUM_FILES_REMOVE
         NUM=0
            while [ $NUM_FILES_REMOVE -gt 0 ]
            do
-#            echo "number Files to remove=" $NUM_FILES_REMOVE
              FILE_TO_REMOVE=${BACKUP_FILES[${NUM}]}
              print_msg "Removing Files ${FILE_TO_REMOVE}"
              NUM_FILES_REMOVE="$((NUM_FILES_REMOVE - 1))"
              NUM=$((NUM+1))
-#echo "NUM =${NUM}"
-#echo "NUM_FILES_REMOVE =${NUM_FILES_REMOVE}"
              rm $FILE_TO_REMOVE
            done
          shopt -u nullglob  
@@ -253,20 +230,14 @@ for i in $@
   do
    array+=($i)
   done
-#echo "There were $# arguments"
 fi
 
-#echo "JAIL_NAME is ${JAIL_NAME}"
-#array=(${JAIL_NAME})
 for JAIL in "${array[@]}"; do echo; done
 
-#for JAIL in */; do echo; done
 if [[ "${#array[@]}" > "1" ]]; then
 echo "There are ${#array[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array[@]}"; do echo; break; done
 print_msg "You choose the jail '${JAIL}' to restore"
-#else
-#JAIL="$JAIL_NAME"
 fi
 
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
@@ -274,7 +245,6 @@ RESTORE_SQL="/usr/local/www/wordpress"
 APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
 CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
-#echo "APPS_DIR_SQL =${APPS_DIR_SQL}"
 
 #
 # Check if currentRestoreDir exists
@@ -289,7 +259,6 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 # Pick the restore directory *don't edit this section*
 #
 cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-#shopt -s dotglob
 shopt -s  nullglob
 array=(${JAIL}*.tar.gz)
 for dir in "${array[@]}"; do echo; done
@@ -306,13 +275,11 @@ fi
 select dir in "${array[@]}"; do echo; break; done
 
 print_msg "You choose ${dir}"
-#shopt -u dotglob
 shopt -u nullglob
 
 BACKUP_NAME=$dir
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
-#    mv ${RESTORE_DIR}/${FILES_PATH}/"${JAIL}_db_password.txt" /root/"${JAIL}_db_password.txt" 
     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
 
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
