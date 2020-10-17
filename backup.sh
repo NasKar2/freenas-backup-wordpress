@@ -50,7 +50,7 @@ if [ -z $POOL_PATH ]; then
   POOL_PATH="/mnt/$(iocage get -p)"
   print_msg "POOL_PATH defaulting to "$POOL_PATH
 fi
-if [ -z $JAIL_NAME ]; then
+if [ -z "$JAIL_NAME" ]; then
   JAIL_NAME="wordpress"
   print_msg "JAIL_NAME not set will default to 'wordpress'"
 fi
@@ -72,7 +72,7 @@ if [ -z $DB_BACKUP_NAME ]; then
 fi
 if [ -z $JAIL_FILES_LOC ]; then
   JAIL_FILES_LOC="/usr/local/www/wordpress"
-  print_msg "JAIL_FILES_LOC not set will default to '/usr/loca/www/wordpress'"
+  print_msg "JAIL_FILES_LOC not set will default to '/usr/local/www/wordpress'"
 fi
 
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
