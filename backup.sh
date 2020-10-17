@@ -239,6 +239,12 @@ echo "There are ${#array[@]} jails available to restore, pick the one to restore
 select JAIL in "${array[@]}"; do echo; break; done
 print_msg "You choose the jail '${JAIL}' to restore"
 fi
+# Read the password file.
+
+# Reset PASSWORDS
+DB_ROOT_PASSWORD=""
+DB_PASSWORD=""
+   . "/root/${JAIL}_db_password.txt"
 
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
 RESTORE_SQL="/usr/local/www/wordpress"
