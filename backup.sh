@@ -165,26 +165,22 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 # LOOP BACKUP #
 
 if [[ $# = 0 ]]; then
-   echo "no parameters"
-   array=("$JAIL_NAME") 
+   array=($JAIL_NAME) 
+   print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
 else
    unset array
 for i in $@
   do
-   echo "parameters passed"
    array+=($i)
-   echo $i
   done
-echo "There were $# arguments"
+#echo "There were $# arguments"
 fi
 
 #array=(${JAIL_NAME})
-print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
  
-for dir in "${array[@]}"; do echo $dir; done
-  
+#for dir in "${array[@]}"; do print_msg "There are ${#array[@]} jails ${dir}"; done
 #for dir in */; do echo; done
-
+#print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
 for JAIL in "${array[@]}"
 do
 echo "*********************************************************************"
@@ -201,10 +197,10 @@ DB_PASSWORD=""
 #echo "ROOT PASSWORD is $DB_ROOT_PASSWORD"
 #echo "PASSWORD is $DB_PASSWORD"
 echo
-#      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
-      print_msg "Wordpress database backup ${DB_BACKUP_NAME} complete"
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
+      print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
 #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
-#      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
+      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
 #tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
 #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
@@ -250,25 +246,21 @@ elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 # LOOP Restore #
 
 if [[ $# = 0 ]]; then
-   echo "no parameters"
-   array=("$JAIL_NAME")
+   array=($JAIL_NAME)
 else
    unset array
 for i in $@
   do
-   echo "parameters passed"
    array+=($i)
-   echo $i
   done
-echo "There were $# arguments"
+#echo "There were $# arguments"
 fi
 
 #echo "JAIL_NAME is ${JAIL_NAME}"
 #array=(${JAIL_NAME})
-for JAIL in "${array[@]}"; do echo $JAIL; done
+for JAIL in "${array[@]}"; do echo; done
 
 #for JAIL in */; do echo; done
-
 if [[ "${#array[@]}" > "1" ]]; then
 echo "There are ${#array[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array[@]}"; do echo; break; done
@@ -296,7 +288,6 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 #
 # Pick the restore directory *don't edit this section*
 #
-echo "JAIL is ${JAIL}"
 cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 #shopt -s dotglob
 shopt -s  nullglob
