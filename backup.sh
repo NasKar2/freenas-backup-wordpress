@@ -109,17 +109,12 @@ fi
 for JAIL in "${array[@]}"; do echo; done
 
 #
-# Check if JAIL PASSWORD files exist for each jail in $JAIL_NAME
+# Check if JAIL PASSWORD files and BACKUP_PATH exist for each jail in $JAIL_NAME
 #
 DATE=$(date +'_%F_%H%M')
-for JAIL in "${array[@]}"; do echo; done
-#array=(${JAIL_NAME})
-
-for dir in "${array[@]}"; do echo; done
 
 for JAIL in "${array[@]}"
 do
-BACKUP_NAME="${JAIL}${DATE}"
 
 # Check for the existence of the password file.
 
@@ -142,11 +137,6 @@ fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
   print_msg="BACKUP_PATH is ${BACKUP_PATH}"
-#   if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
-#    then
-#       mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-#       print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-#    fi
 fi   
 #
 # Check if Backup dir exists
@@ -260,7 +250,7 @@ CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 
 #
-# Check if currentRestoreDir exists
+# Check if RESTORE_DIR exists
 #
    if [ ! -d "$RESTORE_DIR" ]
    then
@@ -269,7 +259,7 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
    fi
 
 #
-# Pick the restore directory *don't edit this section*
+# Pick the restore file *don't edit this section*
 #
 cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 shopt -s  nullglob
