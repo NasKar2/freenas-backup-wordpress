@@ -23,7 +23,7 @@ JAIL_NAME="wp-blog"
 ```
 All options have sensible defaults, which can be adjusted if needed. These are:
 
-- JAIL_NAME: The name of the jail, defaults to `wordpress`.
+- JAIL_NAME: The name of the jail, defaults to `wordpress`. Can be multiple jails separated by a space. Or you can specify jails after the script name to overide the setting in backup-config
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
 - APPS_PATH: Location of apps
 - FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress. Or 'files' if pool/apps/wordpress/files
@@ -49,10 +49,10 @@ JAIL_NAME="personal"
 ```
 Note: be aware that the jail name is case sensitive.
 
-#### 3. *`I also want my backups stored in the pool under a backup root.'*
+#### 3. *`I also want my backups stored in the pool under a temp root.'* Will be stored in /mnt/tank/temp/personal/
 ```
 JAIL_NAME="personal"
-BACKUP_PATH="/mnt/tank/backup/personal"
+BACKUP_PATH="temp"
 ```
 
 #### 4. *'I haven't used the install script. My DB user is `naskar`.*
@@ -60,9 +60,18 @@ backup-config:
 ```
 JAIL_NAME="personal"
 BACKUP_PATH="/mnt/tank/backup/personal"
+DB_USER="naskar"
+```
+
+Create the file /root/personal_db_password.txt with
+```
 DB_ROOT_PASSWORD="abracadabra"
 DB_PASSWORD="alakazam"
-DB_USER="naskar"
+```
+
+#### 5. *'I want to backup multiple sites (wordpress and personal) at the same time'*
+```
+JAIL_NAME="wordpress personal"
 ```
 
 ## Backup
@@ -81,6 +90,7 @@ You will get a list of backups to choose from. Pick the one with the date stamp 
 **WARNING: A restore overwrites any existing WordPress data!!!**
 
 Once you've prepared the configuration file (see examples below), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+**Your wordpress.tar.gz file must be in the <POOL_PATH>/<BACKUP_PATH>/<JAIL_NAME> directory**
 
 Migration can be done specifying the old and new IPs and old and new gateways. See examples below.
 These parameters will be removed from the backup-config after the restore is complete as migration only needs to run once.
@@ -88,7 +98,6 @@ Data needs to be changed to match your requirements. Remember the password to ac
 
 **Migrate IP**
 ```
-APPS_PATH="apps"
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
@@ -98,7 +107,6 @@ NEW_IP="192.168.5.77"
 
 **Migrate IP and Gateway**
 ```
-APPS_PATH="apps"
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
 DB_BACKUP_NAME="wordpress.sql"
@@ -109,7 +117,7 @@ NEW_GATEWAY="192.168.1.1
 ```
 
 ## Multiple Wordpress Jails
-If you have multiple wordpress sites you can list them in JAIL_NAME separated by a space.  
+If you have multiple wordpress sites you can list them in JAIL_NAME variable separated by a space.  Or you can state them at the end of the script name. `script backup.log ./backup-jail.sh wordpress personal`
 All the listed wordpress jails will be backed up and you will be asked which one you want to restore if you have more than one. 
 ```
 JAIL_NAME="wordpress, personal"
