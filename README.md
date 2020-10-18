@@ -60,8 +60,6 @@ backup-config:
 ```
 JAIL_NAME="personal"
 BACKUP_PATH="/mnt/tank/backup/personal"
-DB_ROOT_PASSWORD="abracadabra"
-DB_PASSWORD="alakazam"
 DB_USER="naskar"
 ```
 
