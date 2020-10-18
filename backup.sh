@@ -50,7 +50,7 @@ if [ -z $POOL_PATH ]; then
   POOL_PATH="/mnt/$(iocage get -p)"
   print_msg "POOL_PATH defaulting to "$POOL_PATH
 fi
-if [ -z "$JAIL_NAME" ]; then
+if [[ -z "$JAIL_NAME" ]] && [[ $# = 0 ]]; then
   JAIL_NAME="wordpress"
   print_msg "JAIL_NAME not set will default to 'wordpress'"
 fi
@@ -80,21 +80,40 @@ if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
    sed -i '' "s|OLD_IP=.*||g" ./backup-config
    sed -i '' "s|NEW_IP=.*||g" ./backup-config
+   sed -i '' "s|OLD_GATEWAY=.*||g" ./backup-config
+   sed -i '' "s|NEW_GATEWAY=.*||g" ./backup-config
    print_msg "Remove IP addresses from backup-config file as migration doesn't need to be repeated"
 fi
 if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
    MIGRATE_GATEWAY="TRUE"
    print_msg "Set to Migrate GATEWAY address from ${OLD_GATEWAY} to ${NEW_GATEWAY}"             
-   sed -i '' "s|OLD_GATEWAY=.*||g" ./backup-config
-   sed -i '' "s|NEW_GATEWAY=.*||g" ./backup-config
+#   sed -i '' "s|OLD_GATEWAY=.*||g" ./backup-config
+#   sed -i '' "s|NEW_GATEWAY=.*||g" ./backup-config
    print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
+
+#
+# Check if argument set
+#
+if [[ $# = 0 ]]; then
+   array=($JAIL_NAME)
+   print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
+else
+   unset array
+for i in $@
+  do
+   array+=($i)
+  done
+#echo "There were $# arguments"
+fi
+for JAIL in "${array[@]}"; do echo; done
 
 #
 # Check if JAIL PASSWORD files exist for each jail in $JAIL_NAME
 #
 DATE=$(date +'_%F_%H%M')
-array=(${JAIL_NAME})
+for JAIL in "${array[@]}"; do echo; done
+#array=(${JAIL_NAME})
 
 for dir in "${array[@]}"; do echo; done
 
@@ -123,21 +142,21 @@ fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
   print_msg="BACKUP_PATH is ${BACKUP_PATH}"
-   if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
-    then
-       mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-       print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-    fi
+#   if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
+#    then
+#       mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
+#       print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
+#    fi
 fi   
 #
 # Check if Backup dir exists
 #
-if [[ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
-#  echo "mkdir in check if backup dir exists"
-   mkdir ${POOL_PATH}/${BACKUP_PATH}/${JAIL}
-   print_msg "Directory "${POOL_PATH}/${BACKUP_PATH}/${JAIL} "created"
-else
+if [[ -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
    print_msg "Backup location ${POOL_PATH}/${BACKUP_PATH}/${JAIL} already exists"
+else
+#   echo "mkdir in check if backup dir exists"
+   mkdir ${POOL_PATH}/${BACKUP_PATH}/${JAIL}
+   print_msg "Creating Directory ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 fi
 
 echo
@@ -154,18 +173,6 @@ fi
 echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 # LOOP BACKUP #
-
-if [[ $# = 0 ]]; then
-   array=($JAIL_NAME) 
-   print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
-else
-   unset array
-for i in $@
-  do
-   array+=($i)
-  done
-#echo "There were $# arguments"
-fi
 
 for JAIL in "${array[@]}"
 do
