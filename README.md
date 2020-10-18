@@ -81,6 +81,7 @@ You will get a list of backups to choose from. Pick the one with the date stamp 
 **WARNING: A restore overwrites any existing WordPress data!!!**
 
 Once you've prepared the configuration file (see examples below), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+**Your wordpress.tar.gz file must be in the <POOL_PATH>/<BACKUP_PATH>/<JAIL_NAME> directory**
 
 Migration can be done specifying the old and new IPs and old and new gateways. See examples below.
 These parameters will be removed from the backup-config after the restore is complete as migration only needs to run once.

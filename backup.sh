@@ -122,7 +122,7 @@ fi
 
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
-  print_msg="BACUP_PATH is ${BACKUP_PATH}"
+  print_msg="BACKUP_PATH is ${BACKUP_PATH}"
    if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
     then
        mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
@@ -132,12 +132,12 @@ fi
 #
 # Check if Backup dir exists
 #
-if [[ ! -d "${POOL_PATH}/backup/${JAIL}" ]]; then
+if [[ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
 #  echo "mkdir in check if backup dir exists"
-   mkdir ${POOL_PATH}/backup/${JAIL}
-   print_msg "Directory "${POOL_PATH}/backup/${JAIL} "created"
+   mkdir ${POOL_PATH}/${BACKUP_PATH}/${JAIL}
+   print_msg "Directory "${POOL_PATH}/${BACKUP_PATH}/${JAIL} "created"
 else
-   print_msg "Backup location ${POOL_PATH}/backup/${JAIL} already exists"
+   print_msg "Backup location ${POOL_PATH}/${BACKUP_PATH}/${JAIL} already exists"
 fi
 
 echo
