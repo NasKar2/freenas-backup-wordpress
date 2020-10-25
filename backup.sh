@@ -37,15 +37,17 @@ DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
 MAX_NUM_BACKUPS="2"
 
-#if ! [ -e "backup-config" ]; then 
-SCRIPT=$(readlink -f "$0")
-SCRIPTPATH=$(dirname "$SCRIPT")
-. $SCRIPTPATH/backup-config
-#fi
-#
-# Check if backup-config created correctly
-#
+# Check if backup-config exists and read the file
+if [ -e "backup-config" ]; then 
+  SCRIPT=$(readlink -f "$0")
+  SCRIPTPATH=$(dirname "$SCRIPT")
+  . $SCRIPTPATH/backup-config
+  print_msg "backup-config exists will read it"
+else
+  print_msg "backup-config does not exist will use defaults"
+fi
 
+# Check if backup-config created correctly or set defaults
 if [ -z $POOL_PATH ]; then
   POOL_PATH="/mnt/$(iocage get -p)"
   print_msg "POOL_PATH defaulting to "$POOL_PATH
@@ -92,9 +94,8 @@ if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
    print_msg "Remove GATEWAY addresses from backup-config file as migration doesn't need to be repeated"
 fi
 
-#
+
 # Check if argument set
-#
 if [[ $# = 0 ]]; then
    array=($JAIL_NAME)
    print_msg "There are ${#array[@]} jails ${JAIL_NAME}"
@@ -104,25 +105,17 @@ for i in $@
   do
    array+=($i)
   done
-#echo "There were $# arguments"
+   #echo "There were $# arguments"
 fi
 for JAIL in "${array[@]}"; do echo; done
 
-#
-# Check if JAIL PASSWORD files exist for each jail in $JAIL_NAME
-#
+# Check if JAIL PASSWORD files and BACKUP_PATH exist for each jail in $JAIL_NAME
 DATE=$(date +'_%F_%H%M')
-for JAIL in "${array[@]}"; do echo; done
-#array=(${JAIL_NAME})
-
-for dir in "${array[@]}"; do echo; done
 
 for JAIL in "${array[@]}"
 do
-BACKUP_NAME="${JAIL}${DATE}"
 
-# Check for the existence of the password file.
-
+# Check for the existence of the password file
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
@@ -142,15 +135,9 @@ fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
   print_msg="BACKUP_PATH is ${BACKUP_PATH}"
-#   if [ ! -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]
-#    then
-#       mkdir -p "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-#       print_msg "BACKUP_PATH not set will default to ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
-#    fi
 fi   
-#
+
 # Check if Backup dir exists
-#
 if [[ -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
    print_msg "Backup location ${POOL_PATH}/${BACKUP_PATH}/${JAIL} already exists"
 else
@@ -161,9 +148,8 @@ fi
 
 echo
 done
-#
+
 # Ask to Backup or restore, if run interactively
-#
 if ! [ -t 1 ] ; then
   # Not run interactively
   choice="B"
@@ -173,7 +159,6 @@ fi
 echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 # LOOP BACKUP #
-
 for JAIL in "${array[@]}"
 do
 echo "*********************************************************************"
@@ -181,7 +166,6 @@ BACKUP_NAME="${JAIL}${DATE}.tar.gz"
 print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
 
 # Read the password file.
-      
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
@@ -190,21 +174,20 @@ DB_PASSWORD=""
 echo
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
       print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
-#echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
+     #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
-#tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
-#tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
+     #tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
+     #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME}"
 
-#
+
 # Delete old backups
-#
    if [ $MAX_NUM_BACKUPS -ne 0 ]
      then
       print_msg "Maximum number of backups is $MAX_NUM_BACKUPS"
          shopt -s nullglob
-         BACKUP_FILES=( "${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${JAIL}"*.tar.gz )
+         BACKUP_FILES=( "${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${JAIL}_"*.tar.gz )
          NUM_BACKUPS=${#BACKUP_FILES[@]}
          NUM_FILES_REMOVE="$((NUM_BACKUPS - MAX_NUM_BACKUPS))"
 
@@ -228,7 +211,6 @@ done
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 
 # LOOP Restore #
-
 if [[ $# = 0 ]]; then
    array=($JAIL_NAME)
 else
@@ -246,8 +228,8 @@ echo "There are ${#array[@]} jails available to restore, pick the one to restore
 select JAIL in "${array[@]}"; do echo; break; done
 print_msg "You choose the jail '${JAIL}' to restore"
 fi
-# Read the password file.
 
+# Read the password file.
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
@@ -259,18 +241,14 @@ APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
 CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 
-#
-# Check if currentRestoreDir exists
-#
+# Check if RESTORE_DIR exists
    if [ ! -d "$RESTORE_DIR" ]
    then
          mkdir -p $RESTORE_DIR
          print_msg "Create directory ${RESTORE_DIR}"
    fi
 
-#
-# Pick the restore directory *don't edit this section*
-#
+# Pick the restore file *don't edit this section*
 cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 shopt -s  nullglob
 array=(${JAIL}*.tar.gz)
