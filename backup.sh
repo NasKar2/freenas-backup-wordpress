@@ -188,9 +188,9 @@ DB_PASSWORD=""
 
 echo
   if (( $DB_VERSION >= 104 )); then
-      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "mysql" -p"${DB_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
   else
-      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "mysql" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
   fi  
     print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
      #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
