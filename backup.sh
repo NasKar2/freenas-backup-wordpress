@@ -298,7 +298,7 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
      if (( $DB_VERSION >= 104 )); then      
-        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      fi
@@ -313,7 +313,7 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
      if (( $DB_VERSION >= 104 )); then
-        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      fi
@@ -327,7 +327,7 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
 
    print_msg "Restore Database No Migration"
      if (( $DB_VERSION >= 104 )); then
-        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      fi
