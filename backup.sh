@@ -247,6 +247,8 @@ echo "There are ${#array[@]} jails available to restore, pick the one to restore
 select JAIL in "${array[@]}"; do echo; break; done
 print_msg "You choose the jail '${JAIL}' to restore"
 fi
+DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
+DB_VERSION="${DB_VERSION//.}"
 
 # Read the password file.
 # Reset PASSWORDS
