@@ -119,17 +119,32 @@ do
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
+
+DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
+DB_VERSION="${DB_VERSION//.}"
+print_err "Database Version is ${DB_VERSION}"
 if ! [ -e "/root/${JAIL}_db_password.txt" ]; then
    # It doesn't exist. Have the passwords been supplied in backup-config?
-   print_err "You must have a file ${JAIL}_db_password.txt containing DB_ROOT_PASSWORD and DB_PASSWORD"
+  if (( $DB_VERSION >= 104 )); then
+   print_err "You must have a file ${JAIL}_db_password.txt that contains only the variable DB_PASSWORD"
    exit 1
+  else
+   print_err "You must have a file ${JAIL}_db_password.txt that containing the variables DB_ROOT_PASSWORD and DB_PASSWORD"
+   exit 1
+  fi
 else
    # It does exist. Check for the existence of password variables in the password file.
    . "/root/${JAIL}_db_password.txt"
+  if (( $DB_VERSION >= 104 )); then
+   if [ -z "${DB_PASSWORD}" ]; then
+      print_err "The password file is corrupt."
+   fi
+  else
    if [ -z "${DB_ROOT_PASSWORD}" ] || [ -z "${DB_PASSWORD}" ]; then
       print_err "The password file is corrupt."
       exit 1
    fi
+  fi
 fi
 
 if [ -z $BACKUP_PATH ]; then
@@ -172,8 +187,12 @@ DB_PASSWORD=""
    . "/root/${JAIL}_db_password.txt"
 
 echo
-      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
-      print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
+  if (( $DB_VERSION >= 104 )); then
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "mysql" -p"${DB_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
+  else
+      iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "mysql" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
+  fi  
+    print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
      #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
@@ -278,7 +297,11 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
-     iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     if (( $DB_VERSION >= 104 )); then      
+        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     else
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     fi
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
@@ -289,7 +312,11 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
      sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
-     iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     if (( $DB_VERSION >= 104 )); then
+        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     else
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     fi
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
@@ -299,7 +326,11 @@ fi
 if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
 
    print_msg "Restore Database No Migration"
-   iocage exec ${JAIL} "mysql -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     if (( $DB_VERSION >= 104 )); then
+        iocage exec "${JAIL}" "mysql -u root -p${DB_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     else
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     fi
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
    iocage restart ${JAIL}
