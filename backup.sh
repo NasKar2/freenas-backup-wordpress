@@ -105,13 +105,14 @@ for i in $@
   do
    array+=($i)
   done
-   #echo "There were $# arguments"
+#   echo "There were $# arguments"
+#   for dir in "${array[@]}"; do echo $dir; done
 fi
 for JAIL in "${array[@]}"; do echo; done
 
 # Check if JAIL PASSWORD files and BACKUP_PATH exist for each jail in $JAIL_NAME
 DATE=$(date +'_%F_%H%M')
-
+i=0
 for JAIL in "${array[@]}"
 do
 
@@ -122,7 +123,10 @@ DB_PASSWORD=""
 
 DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
 DB_VERSION="${DB_VERSION//.}"
-print_err "Database Version is ${DB_VERSION}"
+version[i]=$DB_VERSION
+#echo "version is $version[$i]"
+i=$((i+1))
+#print_err "Database Version is "${DB_VERSION}
 if ! [ -e "/root/${JAIL}_db_password.txt" ]; then
    # It doesn't exist. Have the passwords been supplied in backup-config?
   if (( $DB_VERSION >= 104 )); then
@@ -163,7 +167,7 @@ fi
 
 echo
 done
-
+for dir in "${version[@]}"; do echo $dir; done
 # Ask to Backup or restore, if run interactively
 if ! [ -t 1 ] ; then
   # Not run interactively
@@ -174,8 +178,10 @@ fi
 echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 # LOOP BACKUP #
-for JAIL in "${array[@]}"
-do
+for i in "${!array[@]}"; do
+#echo $i
+JAIL=${array[$i]}
+#print_err "${JAIL}"
 echo "*********************************************************************"
 BACKUP_NAME="${JAIL}${DATE}.tar.gz"
 print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
@@ -185,7 +191,8 @@ print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
    . "/root/${JAIL}_db_password.txt"
-
+DB_VERSION=${version[$i]}
+#print_err "Current DB_VERSION is "${DB_VERSION}
 echo
   if (( $DB_VERSION >= 104 )); then
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
