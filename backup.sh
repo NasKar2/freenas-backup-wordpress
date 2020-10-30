@@ -167,7 +167,7 @@ fi
 
 echo
 done
-for dir in "${version[@]}"; do echo $dir; done
+#for dir in "${version[@]}"; do echo $dir; done
 # Ask to Backup or restore, if run interactively
 if ! [ -t 1 ] ; then
   # Not run interactively
