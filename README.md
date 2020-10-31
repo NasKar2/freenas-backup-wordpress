@@ -128,11 +128,6 @@ The script checks for the version of MariaDB in you jail install.  If 10.4 or hi
 If 10.3 or lower using the default Authenication Plugin, it requires a DB_ROOT_PASSWORD and DB_PASSWORD in the {JAIL}_db_password.txt.
 Ideally it would be best to create a test for the Authentication Plugin but I'm not aware of how to do this test.
 
-## Compatibility with Basil Hendroff's wordpress install script
-My backup script assumes each wordpress install is in a separate directory under the /mnt/v1/apps/ directory.
-His script puts them in a subdirectory under /mnt/v1/apps/wordpress/.
-To use this script after installing with Basil's [script](https://github.com/basilhendroff/freenas-iocage-wordpress) set the APPS_PATH to "apps/wordpress"
-
 ## Support and Discussion
 Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-backups/)
 
