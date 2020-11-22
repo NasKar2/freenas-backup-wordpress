@@ -62,7 +62,7 @@ if [ -z $APPS_PATH ]; then
 fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
-  print_msg="BACKUP_PATH is ${BACKUP_PATH}"
+  print_msg "BACKUP_PATH is ${BACKUP_PATH}"
 fi
 if [ -z $FILES_PATH ]; then
   print_msg "FILES_PATH not set will default to 'files'"
