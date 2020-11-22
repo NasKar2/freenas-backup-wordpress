@@ -60,6 +60,10 @@ if [ -z $APPS_PATH ]; then
   APPS_PATH="apps"
   print_msg "APPS_PATH defaulting to 'apps'"
 fi
+if [ -z $BACKUP_PATH ]; then
+  BACKUP_PATH="backup"
+  print_msg="BACKUP_PATH is ${BACKUP_PATH}"
+fi
 if [ -z $FILES_PATH ]; then
   print_msg "FILES_PATH not set will default to 'files'"
   FILES_PATH="files"
@@ -151,17 +155,12 @@ else
   fi
 fi
 
-if [ -z $BACKUP_PATH ]; then
-  BACKUP_PATH="backup"
-  print_msg="BACKUP_PATH is ${BACKUP_PATH}"
-fi   
-
 # Check if Backup dir exists
 if [[ -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
    print_msg "Backup location ${POOL_PATH}/${BACKUP_PATH}/${JAIL} already exists"
 else
 #   echo "mkdir in check if backup dir exists"
-   mkdir ${POOL_PATH}/${BACKUP_PATH}/${JAIL}
+   mkdir -p ${POOL_PATH}/${BACKUP_PATH}/${JAIL}
    print_msg "Creating Directory ${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 fi
 
