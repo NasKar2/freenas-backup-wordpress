@@ -119,7 +119,16 @@ DATE=$(date +'_%F_%H%M')
 i=0
 for JAIL in "${array[@]}"
 do
-
+# Check if ${POOL_PATH}/${APPS_PATH}/${JAIL} exists
+   if [[ ! -d "${POOL_PATH}/${APPS_PATH}/${JAIL}" ]]; then
+         print_err "********* ${POOL_PATH}/${APPS_PATH}/${JAIL} does not exist. There must not be a wordpress install in that data directory."
+         exit 1
+   fi
+# Check if "/root/${JAIL}_db_password.txt" exists
+   if [[ ! -e "/root/${JAIL}_db_password.txt" ]]; then
+        print_err "The password file '/root/${JAIL}_db_password.txt' does not exist"
+        exit 1
+   fi
 # Check for the existence of the password file
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
@@ -184,6 +193,14 @@ JAIL=${array[$i]}
 echo "*********************************************************************"
 BACKUP_NAME="${JAIL}${DATE}.tar.gz"
 print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
+# Check if ${POOL_PATH}/${APPS_PATH}/${JAIL} exists
+   if [ ! -d "${POOL_PATH}/${APPS_PATH}/${JAIL}" ]
+   then
+#         mkdir -p $RESTORE_DIR
+         print_err "${POOL_PATH}/${APPS_PATH}/${JAIL} does not exist. You are trying to backup a data directory that doesn't exist."
+         exit 1
+#         print_msg "Create directory ${RESTORE_DIR}"
+   fi
 
 # Read the password file.
 # Reset PASSWORDS
@@ -271,8 +288,11 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 # Check if RESTORE_DIR exists
    if [ ! -d "$RESTORE_DIR" ]
    then
-         mkdir -p $RESTORE_DIR
-         print_msg "Create directory ${RESTORE_DIR}"
+#         mkdir -p $RESTORE_DIR
+         print_err "$RESTORE_DIR does not exist. You must set the JAIL_NAME variable in the config to name of the wordpress DATA directory"
+         print_err "This will be in the ${POOL_PATH}/${APPS_PATH} directory"
+         exit 1
+#         print_msg "Create directory ${RESTORE_DIR}"
    fi
 
 # Pick the restore file *don't edit this section*
