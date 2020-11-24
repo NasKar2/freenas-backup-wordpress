@@ -35,7 +35,7 @@ OLD_GATEWAY=""
 NEW_GATEWAY=""
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
-MAX_NUM_BACKUPS="2"
+MAX_NUM_BACKUPS=""
 
 # Check if backup-config exists and read the file
 if [ -e "backup-config" ]; then 
@@ -79,6 +79,10 @@ fi
 if [ -z $JAIL_FILES_LOC ]; then
   JAIL_FILES_LOC="/usr/local/www/wordpress"
   print_msg "JAIL_FILES_LOC not set will default to '/usr/local/www/wordpress'"
+fi
+if [ -z $MAX_NUM_BACKUPS ]; then                                                      
+  MAX_NUM_BACKUPS=0
+  print_msg "MAX_NUM_BACKUPS not set will default to '0' unlimited"
 fi
 
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then

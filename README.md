@@ -35,7 +35,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - BACKUP_NAME: The name of the backup file. Defaults to `<JAIL_NAME>.tar.gz`. 
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
 - DB_SQL: The SQL file used used to backup/restore your WordPress database. Defaults to `wordpress.sql`.
-- MAX_NUM_BACKUPS: The maximum number of backups to keep.  Will default to 2. If set to 0 the backups will be unlimited.
+- MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited.
 
 Some examples follow:
 
