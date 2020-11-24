@@ -21,20 +21,15 @@ fi
 # Initialize Variables
 #
 
-APPS_PATH=""
-BACKUP_PATH=""
-FILES_PATH=""
-BACKUP_NAME=""
 JAIL_NAME=""
+BACKUP_PATH=""
+APPS_PATH=""
+FILES_PATH=""
 DATABASE_NAME=""
-DB_BACKUP_NAME=""
-JAIL_FILES_LOC=""
 IP_OLD=""
 IP_NEW=""
 OLD_GATEWAY=""
 NEW_GATEWAY=""
-DB_ROOT_PASSWORD=""
-DB_PASSWORD=""
 MAX_NUM_BACKUPS=""
 
 # Check if backup-config exists and read the file
@@ -72,14 +67,13 @@ if [ -z $DATABASE_NAME ]; then
   DATABASE_NAME="wordpress"
   print_msg "DATABASE_NAME not set will default to wordpress"
 fi
-if [ -z $DB_BACKUP_NAME ]; then
-  DB_BACKUP_NAME="wordpress.sql"
-  print_msg "DB_BACKUP_NAME not set will default to wordpress.sql"
-fi
-if [ -z $JAIL_FILES_LOC ]; then
-  JAIL_FILES_LOC="/usr/local/www/wordpress"
-  print_msg "JAIL_FILES_LOC not set will default to '/usr/local/www/wordpress'"
-fi
+
+DB_BACKUP_NAME="wordpress.sql"
+print_msg "DB_BACKUP_NAME set to 'wordpress.sql'"
+
+JAIL_FILES_LOC="/usr/local/www/wordpress"
+print_msg "JAIL_FILES_LOC set to '/usr/local/www/wordpress'"
+
 if [ -z $MAX_NUM_BACKUPS ]; then                                                      
   MAX_NUM_BACKUPS=0
   print_msg "MAX_NUM_BACKUPS not set will default to '0' unlimited"
