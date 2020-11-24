@@ -75,7 +75,7 @@ JAIL_NAME="wordpress personal"
 ```
 
 ## Backup
-Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
+Once you've prepared the configuration file (if required), run the script `script backup.log ./backup.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
 The script will keep 2 backups deleting the oldest unless you add the MAX_NUM_BACKUPS to the backup-config. 
 To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation like a cron task in the FreeNAS GUI.
 
