@@ -11,6 +11,24 @@ print_err () {
   echo
 }
 
+
+phar_install () {
+PHP_VER=$(iocage exec ${JAIL_NAME} php -v | grep ^PHP | cut -d ' ' -f2 | cut -d '.' -f-2)
+PHP_VER=${PHP_VER//.}
+#echo $PHP_VER
+PHP_PHAR=php${PHP_VER}-phar
+#echo $PHP_PHAR
+}
+
+maintenance_activate () {
+iocage exec ${JAIL} "cd /usr/local/www/wordpress && php wp-cli.phar maintenance-mode activate"
+}
+
+maintenance_deactivate () {
+iocage exec ${JAIL} "cd /usr/local/www/wordpress && php wp-cli.phar maintenance-mode deactivate"
+}
+
+
 # Check for root privileges
 if ! [ $(id -u) = 0 ]; then
    print_err "This script must be run with root privileges"
@@ -208,6 +226,10 @@ DB_PASSWORD=""
 DB_VERSION=${version[$i]}
 #print_err "Current DB_VERSION is "${DB_VERSION}
 echo
+##################################################
+phar_install
+maintenance_activate
+print_msg "Maintenance Mode Activated"
   if (( $DB_VERSION >= 104 )); then
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
   else
@@ -220,7 +242,8 @@ echo
      #tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
      #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME}"
-
+maintenance_deactivate
+print_msg "Maintenance Mode Deactivated"
 
 # Delete old backups
    if [ $MAX_NUM_BACKUPS -ne 0 ]
@@ -312,7 +335,9 @@ select dir in "${array[@]}"; do echo; break; done
 
 print_msg "You choose ${dir}"
 shopt -u nullglob
-
+phar_install
+maintenance_activate
+print_msg "Maintenance Mode Activated"
 BACKUP_NAME=$dir
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
@@ -343,6 +368,8 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      fi
+maintenance_deactivate
+print_msg "Maintenance Mode Deactivated"
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
@@ -357,6 +384,8 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
      fi
+maintenance_deactivate
+print_msg "Maintenance Mode Deactivated"
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
    iocage restart ${JAIL}
