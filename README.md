@@ -31,6 +31,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress/. Or 'files' if pool/apps/wordpress/files/
 - DATABASE_NAME: Defaults to wordpress
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
+- JAIL_FILES_LOC: Location of wordpress files in the jail.  Default is /usr/local/www/wordpress
 - MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited. If set to 2 only the latest 2 backups will be kept.
 
 Some examples follow:

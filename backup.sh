@@ -18,14 +18,16 @@ PHP_VER=${PHP_VER//.}
 #echo $PHP_VER
 PHP_PHAR=php${PHP_VER}-phar
 #echo $PHP_PHAR
+iocage exec ${JAIL} "pkg install $PHP_PHAR"
+iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
 }
 
 maintenance_activate () {
-iocage exec ${JAIL} "cd /usr/local/www/wordpress && php wp-cli.phar maintenance-mode activate"
+iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && php wp-cli.phar maintenance-mode activate"
 }
 
 maintenance_deactivate () {
-iocage exec ${JAIL} "cd /usr/local/www/wordpress && php wp-cli.phar maintenance-mode deactivate"
+iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && php wp-cli.phar maintenance-mode deactivate"
 }
 
 
@@ -89,8 +91,10 @@ fi
 DB_BACKUP_NAME="wordpress.sql"
 print_msg "DB_BACKUP_NAME set to 'wordpress.sql'"
 
-JAIL_FILES_LOC="/usr/local/www/wordpress"
-print_msg "JAIL_FILES_LOC set to '/usr/local/www/wordpress'"
+if [ -z $JAIL_FILES_LOC ]; then
+  JAIL_FILES_LOC="/usr/local/www/wordpress"
+  print_msg "JAIL_FILES_LOC not set will default to '/usr/local/www/wordpress'"
+fi
 
 if [ -z $MAX_NUM_BACKUPS ]; then                                                      
   MAX_NUM_BACKUPS=0
