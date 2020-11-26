@@ -48,6 +48,7 @@ BACKUP_PATH=""
 APPS_PATH=""
 FILES_PATH=""
 DATABASE_NAME=""
+JAIL_FILES_LOC=""
 IP_OLD=""
 IP_NEW=""
 OLD_GATEWAY=""
@@ -307,7 +308,6 @@ DB_PASSWORD=""
    . "/root/${JAIL}_db_password.txt"
 
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
-RESTORE_SQL="/usr/local/www/wordpress"
 APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
 CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
@@ -354,10 +354,12 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
   if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
-     if (( $DB_VERSION >= 104 )); then      
-        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+     if (( $DB_VERSION >= 104 )); then
+        echo "before mysql >104"      
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      else
-        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        echo "before mysql <104"
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
@@ -370,9 +372,9 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
      if (( $DB_VERSION >= 104 )); then
-        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      else
-        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
 maintenance_deactivate
 print_msg "Maintenance Mode Deactivated"
@@ -386,9 +388,9 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
 
    print_msg "Restore Database No Migration"
      if (( $DB_VERSION >= 104 )); then
-        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      else
-        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${RESTORE_SQL}/${DB_BACKUP_NAME}""
+        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
 maintenance_deactivate
 print_msg "Maintenance Mode Deactivated"
