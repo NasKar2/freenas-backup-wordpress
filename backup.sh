@@ -24,14 +24,12 @@ else
    iocage exec ${JAIL} "pkg install -y $PHP_PHAR"
 fi
 if [[ "${FILES_PATH}" = "/" ]]; then
- echo "FILES_PATH is ='/'"
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-cli.phar" ]; then
       echo  "wp-cli.phar does not exist will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
     fi
 else
-  echo "FILES_PATH is not = to '/'"
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-cli.phar" ]; then
       echo  "wp-cli.phar does not exist will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
