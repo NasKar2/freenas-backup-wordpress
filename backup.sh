@@ -14,14 +14,31 @@ print_err () {
 
 phar_install () {
 PHP_VER=$(iocage exec ${JAIL} php -v | grep ^PHP | cut -d ' ' -f2 | cut -d '.' -f-2)
-echo $PHP_VER
 PHP_VER=${PHP_VER//.}
-echo $PHP_VER
 PHP_PHAR=php${PHP_VER}-phar
-echo $PHP_PHAR
-iocage exec ${JAIL} "pkg install -y $PHP_PHAR" 
-iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
-iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
+PKG_INFO=$(iocage exec ${JAIL} pkg info | grep ${PHP_PHAR} | grep ^${PHP_PHAR} | cut -d '-' -f2)
+if [[ $PKG_INFO == "phar" ]]; then
+   echo
+else
+   print_msg "php74-phar does not exits will install"
+   iocage exec ${JAIL} "pkg install -y $PHP_PHAR"
+fi
+if [[ "${FILES_PATH}" = "/" ]]; then
+ echo "FILES_PATH is ='/'"
+   if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-cli.phar" ]; then
+      echo  "wp-cli.phar does not exist will install"
+      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
+      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
+    fi
+else
+  echo "FILES_PATH is not = to '/'"
+   if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-cli.phar" ]; then
+      echo  "wp-cli.phar does not exist will install"
+      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
+      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
+    fi
+fi
+
 }
 
 maintenance_activate () {
@@ -236,7 +253,6 @@ echo
 ##################################################
 phar_install
 maintenance_activate
-print_msg "Maintenance Mode Activated"
   if (( $DB_VERSION >= 104 )); then
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
   else
@@ -250,7 +266,6 @@ print_msg "Maintenance Mode Activated"
      #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME}"
 maintenance_deactivate
-print_msg "Maintenance Mode Deactivated"
 
 # Delete old backups
    if [ $MAX_NUM_BACKUPS -ne 0 ]
@@ -343,7 +358,6 @@ print_msg "You choose ${dir}"
 shopt -u nullglob
 phar_install
 maintenance_activate
-print_msg "Maintenance Mode Activated"
 BACKUP_NAME=$dir
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
@@ -377,7 +391,6 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
 maintenance_deactivate
-print_msg "Maintenance Mode Deactivated"
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
@@ -393,7 +406,6 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
 maintenance_deactivate
-print_msg "Maintenance Mode Deactivated"
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
    iocage restart ${JAIL}
