@@ -13,12 +13,13 @@ print_err () {
 
 
 phar_install () {
-PHP_VER=$(iocage exec ${JAIL_NAME} php -v | grep ^PHP | cut -d ' ' -f2 | cut -d '.' -f-2)
+PHP_VER=$(iocage exec ${JAIL} php -v | grep ^PHP | cut -d ' ' -f2 | cut -d '.' -f-2)
+echo $PHP_VER
 PHP_VER=${PHP_VER//.}
-#echo $PHP_VER
+echo $PHP_VER
 PHP_PHAR=php${PHP_VER}-phar
-#echo $PHP_PHAR
-iocage exec ${JAIL} "pkg install $PHP_PHAR"
+echo $PHP_PHAR
+iocage exec ${JAIL} "pkg install -y $PHP_PHAR" 
 iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
 }
 
