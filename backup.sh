@@ -25,13 +25,13 @@ else
 fi
 if [[ "${FILES_PATH}" = "/" ]]; then
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-cli.phar" ]; then
-      echo  "wp-cli.phar does not exist will install"
+      print_msg  "wp-cli.phar does not exist will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
     fi
 else
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-cli.phar" ]; then
-      echo  "wp-cli.phar does not exist will install"
+      print_msg  "wp-cli.phar does not exist will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
     fi
