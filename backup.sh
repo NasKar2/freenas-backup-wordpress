@@ -21,6 +21,7 @@ PHP_PHAR=php${PHP_VER}-phar
 echo $PHP_PHAR
 iocage exec ${JAIL} "pkg install -y $PHP_PHAR" 
 iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
+iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
 }
 
 maintenance_activate () {
