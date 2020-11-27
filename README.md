@@ -140,6 +140,9 @@ Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-b
 
 Questions or issues about this resource can be raised in [this forum thread](https://www.ixsystems.com/community/threads/wordpress-backup-restore-and-migrate-script.87776/). Support is limited to getting the backup script working with your WordPress jail. 
 
+## To Do
+Fix PHP Notice errors that occur when using a reverse proxy
+
 ## Disclaimer
 It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
 
