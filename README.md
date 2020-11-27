@@ -80,7 +80,7 @@ JAIL_NAME="wordpress personal"
 Once you've prepared the configuration file (if required), and the <JAIL_NAME>_db_password.txt file, run the script `script backup.log ./backup.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
 After choosing 'B' wordpress will be placed in maintenance mode temporarily till the backup is completed.
 This will prevent any changes from occurring during the backup process.
-**PHP Notice:  errors will be displayed if the created wordpress site uses a reverse proxy. They can be safely ignored as they will not affect the function of a backup or restore.
+**PHP Notice:  errors will be displayed if the created wordpress site uses a reverse proxy. They can be safely ignored as they will not affect the function of a backup or restore.**
 The script will keep unlimited backups unless you add the MAX_NUM_BACKUPS to the backup-config.
 If you set MAX_NUM_BACKUPS to 2 it will delete all backups except for the 2 most recent ones. 
 To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation like a cron task in the FreeNAS GUI.

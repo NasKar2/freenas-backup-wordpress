@@ -64,8 +64,8 @@ APPS_PATH=""
 FILES_PATH=""
 DATABASE_NAME=""
 JAIL_FILES_LOC=""
-IP_OLD=""
-IP_NEW=""
+OLD_IP=""
+NEW_IP=""
 OLD_GATEWAY=""
 NEW_GATEWAY=""
 MAX_NUM_BACKUPS=""
@@ -201,7 +201,6 @@ else
    fi
   fi
 fi
-
 # Check if Backup dir exists
 if [[ -d "${POOL_PATH}/${BACKUP_PATH}/${JAIL}" ]]; then
    print_msg "Backup location ${POOL_PATH}/${BACKUP_PATH}/${JAIL} already exists"
@@ -244,7 +243,9 @@ print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
-   . "/root/${JAIL}_db_password.txt"
+#   . "/root/${JAIL}_db_password.txt"
+DB_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_PASSWORD | cut -d '"' -f2`
+DB_ROOT_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_ROOT_PASSWORD | cut -d '"' -f2`
 DB_VERSION=${version[$i]}
 #print_err "Current DB_VERSION is "${DB_VERSION}
 echo
@@ -257,11 +258,14 @@ maintenance_activate
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
   fi  
     print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
-     #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
+if [[ "${FILES_PATH}" = "/" ]]; then
+      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} ."
+      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} .
+else
+      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
-     #tar -cvzf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz -C /mnt/v1/apps/wordpress/files/ . -C /root/ ./wordpress_db_password.txt
-     #tar -C /mnt/v1/git/freenas-backup-wordpress/files -zxvf /mnt/v1/git/freenas-backup-wordpress/wordpress.tar.gz
+fi
       print_msg "Backup complete file located at ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME}"
 maintenance_deactivate
 
@@ -318,13 +322,21 @@ DB_VERSION="${DB_VERSION//.}"
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
 DB_PASSWORD=""
-   . "/root/${JAIL}_db_password.txt"
-
+#   . "/root/${JAIL}_db_password.txt"
+DB_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_PASSWORD | cut -d '"' -f2`
+DB_ROOT_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_ROOT_PASSWORD | cut -d '"' -f2`
 RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
-APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
-CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
+if [[ "${FILES_PATH}" = "/" ]]; then
+   APPS_DIR_SQL=${RESTORE_DIR}/${DB_BACKUP_NAME}
+   CONFIG_PHP="${RESTORE_DIR}/wp-config.php"
+else
+   APPS_DIR_SQL=${RESTORE_DIR}/${FILES_PATH}/${DB_BACKUP_NAME}
+   CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
+fi
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
-
+echo "RESTORE_DIR is ${RESTORE_DIR}"
+echo "APPS_DIR_SQL is ${APPS_DIR_SQL}"
+echo "CONFIG_PHP is ${CONFIG_PHP}"
 # Check if RESTORE_DIR exists
    if [ ! -d "$RESTORE_DIR" ]
    then
@@ -357,10 +369,15 @@ shopt -u nullglob
 phar_install
 maintenance_activate
 BACKUP_NAME=$dir
+if [[ "${FILES_PATH}" = "/" ]]; then
+     print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}"
+     tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}
+    chown -R www:www ${RESTORE_DIR}
+else
      print_msg "Untar ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} to ${RESTORE_DIR}/${FILES_PATH}"
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
-
+fi
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
@@ -373,11 +390,11 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
         echo "before mysql <104"
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
+  fi
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
      sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
-  fi
 fi
 if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
@@ -388,11 +405,11 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
-maintenance_deactivate
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
      sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
+#maintenance_deactivate
 fi
 
 if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
@@ -403,9 +420,10 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
-maintenance_deactivate
+#maintenance_deactivate
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
+maintenance_deactivate
    iocage restart ${JAIL}
    echo
 else
