@@ -93,7 +93,8 @@ You will be prompted to (B)ackup or (R)estore. Choose restore.
 After choosing 'R' wordpress will be placed in maintenance mode temporarily till the restore is completed.  
 This will prevent any changes from occurring during the restore process.
 You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
-
+**If you want to restore a backup that was created with an install with different passwords on the same system you must do a Migration.
+Set your OLD_IP and NEW_IP to same IP address. See Migrate section**
 
 ## Migrate
 **WARNING: A restore overwrites any existing WordPress data!!!**
