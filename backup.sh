@@ -148,6 +148,27 @@ DATE=$(date +'_%F_%H%M')
 i=0
 for JAIL in "${array[@]}"
 do
+# Check is Jail is up, valid wordpress or down
+   if [ $(iocage get -s ${JAIL} ) = "up" ]; then
+echo "JAIL IS UP"
+     if [[ "${FILES_PATH}" = "/" ]]; then
+       if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-config.php" ]; then
+echo "/"
+         print_err "This jail ${JAIL} is not a wordpress jail"
+         exit 1
+       fi
+     else
+       if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-config.php" ]; then
+echo "FILES_PATH check"
+         print_err "This jail ${JAIL} is not a wordpress jail"
+         exit 1
+       fi
+     fi
+   elif [ $(iocage get -s ${JAIL} ) = "down" ]; then                   
+     print_err "The jail named ${JAIL} is down please start it"
+     exit 1
+   fi
+
 # Check if ${POOL_PATH}/${APPS_PATH}/${JAIL} exists
    if [[ ! -d "${POOL_PATH}/${APPS_PATH}/${JAIL}" ]]; then
          print_err "********* ${POOL_PATH}/${APPS_PATH}/${JAIL} does not exist. There must not be a wordpress install in that data directory."
@@ -209,7 +230,17 @@ if ! [ -t 1 ] ; then
   # Not run interactively
   choice="B"
 else
- read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
+  read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
+  while [ "$choice" != "B" ] && [ "$choice" != "b" ] && [ "$choice" != "R" ] && [ "$choice" != "r" ];
+   do
+     if [ "$choice" != "B" ] && [ "$choice" != "b" ] && [ "$choice" != "R" ] && [ "$choice" != "r" ]; then
+       #clear
+       print_err "You need to enter 'B' or 'R'"
+#     else
+#       break
+     fi
+   read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
+  done
 fi
 echo
 if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
@@ -326,9 +357,6 @@ else
    CONFIG_PHP="${RESTORE_DIR}/${FILES_PATH}/wp-config.php"
 fi
 backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
-echo "RESTORE_DIR is ${RESTORE_DIR}"
-echo "APPS_DIR_SQL is ${APPS_DIR_SQL}"
-echo "CONFIG_PHP is ${CONFIG_PHP}"
 # Check if RESTORE_DIR exists
    if [ ! -d "$RESTORE_DIR" ]
    then
