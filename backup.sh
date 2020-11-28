@@ -17,34 +17,25 @@ PHP_VER=$(iocage exec ${JAIL} php -v | grep ^PHP | cut -d ' ' -f2 | cut -d '.' -
 PHP_VER=${PHP_VER//.}
 PHP_PHAR=php${PHP_VER}-phar
 PKG_INFO=$(iocage exec ${JAIL} pkg info | grep ${PHP_PHAR} | grep ^${PHP_PHAR} | cut -d '-' -f2)
-if [[ $PKG_INFO == "phar" ]]; then
-   echo
-else
+if [[ $PKG_INFO != "phar" ]]; then
    print_msg "php74-phar does not exist, will install"
    iocage exec ${JAIL} "pkg install -y $PHP_PHAR"
 fi
-if [[ "${FILES_PATH}" = "/" ]]; then
-   if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-cli.phar" ]; then
-      print_msg  "wp-cli.phar does not exist, will install"
+   if [ ! -e "${POOL_PATH}/iocage/jails/${JAIL}/root/usr/local/bin/wp" ]; then
+      print_msg  "wp-cli.phar does not exist, will install and move to /usr/local/bin/wp"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
+      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && mv wp-cli.phar /usr/local/bin/wp"
     fi
-else
-   if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-cli.phar" ]; then
-      print_msg  "wp-cli.phar does not exist, will install"
-      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
-      iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
-    fi
-fi
 
 }
 
 maintenance_activate () {
-iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && php wp-cli.phar maintenance-mode activate"
+iocage exec ${JAIL} " wp --path="${JAIL_FILES_LOC}" maintenance-mode activate"
 }
 
 maintenance_deactivate () {
-iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && php wp-cli.phar maintenance-mode deactivate"
+iocage exec ${JAIL} " wp --path="${JAIL_FILES_LOC}" maintenance-mode deactivate"
 }
 
 
@@ -262,7 +253,7 @@ if [[ "${FILES_PATH}" = "/" ]]; then
 #      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} .
 else
-      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
+#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
 fi
