@@ -355,7 +355,14 @@ echo "There are ${#array[@]} backups available, pick the one to restore"; \
 fi
 
 select dir in "${array[@]}"; do echo; break; done
-
+while [[ ! $REPLY -le ${#array[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]];
+do
+if [[ ! $REPLY -le ${#array[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]]; then
+  #clear
+  print_err "$REPLY is invalid try again"
+fi
+select dir in "${array[@]}"; do echo; break; done
+done
 print_msg "You choose ${dir}"
 shopt -u nullglob
 phar_install
