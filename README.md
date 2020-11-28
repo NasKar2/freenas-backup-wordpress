@@ -93,7 +93,7 @@ After choosing 'R' wordpress will be placed in maintenance mode temporarily till
 This will prevent any changes from occurring during the restore process.
 You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
 **If you get an error "Error establishing a database connection." that means you are trying to retore a backup with a different password than your current install.
-You will need to do a do a Migration instead and set the OLD_IP and NEW_IP to same IP address. See Migrate section**
+You will need to do a do a Migration instead and set the OLD_IP and NEW_IP to same IP address. See Migrate section below.**
 
 ## Migrate
 **WARNING: A restore overwrites any existing WordPress data!!!**
@@ -139,8 +139,6 @@ Ideally it would be best to create a test for the Authentication Plugin but I'm 
 Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-backups/)
 
 Questions or issues about this resource can be raised in [this forum thread](https://www.ixsystems.com/community/threads/wordpress-backup-restore-and-migrate-script.87776/). Support is limited to getting the backup script working with your WordPress jail. 
-
-## To Do
 
 ## Disclaimer
 It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
