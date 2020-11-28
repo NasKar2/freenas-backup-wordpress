@@ -80,7 +80,6 @@ JAIL_NAME="wordpress personal"
 Once you've prepared the configuration file (if required), and the <JAIL_NAME>_db_password.txt file, run the script `script backup.log ./backup.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
 After choosing 'B' wordpress will be placed in maintenance mode temporarily till the backup is completed.
 This will prevent any changes from occurring during the backup process.
-**PHP Notice:  errors will be displayed if the created wordpress site uses a reverse proxy. They can be safely ignored as they will not affect the function of a backup or restore.**
 The script will keep unlimited backups unless you add the MAX_NUM_BACKUPS to the backup-config.
 If you set MAX_NUM_BACKUPS to 2 it will delete all backups except for the 2 most recent ones. 
 To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation like a cron task in the FreeNAS GUI.
@@ -93,8 +92,8 @@ You will be prompted to (B)ackup or (R)estore. Choose restore.
 After choosing 'R' wordpress will be placed in maintenance mode temporarily till the restore is completed.  
 This will prevent any changes from occurring during the restore process.
 You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
-**If you want to restore a backup that was created with an install with different passwords on the same system you must do a Migration.
-Set your OLD_IP and NEW_IP to same IP address. See Migrate section**
+**If you get an error "Error establishing a database connection." that means you are trying to retore a backup with a different password than your current install.
+You will need to do a do a Migration instead and set the OLD_IP and NEW_IP to same IP address. See Migrate section**
 
 ## Migrate
 **WARNING: A restore overwrites any existing WordPress data!!!**
@@ -142,7 +141,6 @@ Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-b
 Questions or issues about this resource can be raised in [this forum thread](https://www.ixsystems.com/community/threads/wordpress-backup-restore-and-migrate-script.87776/). Support is limited to getting the backup script working with your WordPress jail. 
 
 ## To Do
-Fix PHP Notice errors that occur when using a reverse proxy
 
 ## Disclaimer
 It's your data. It's your responsibility. This resource is provided as a community service. Use it at your own risk.
