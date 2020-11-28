@@ -20,18 +20,18 @@ PKG_INFO=$(iocage exec ${JAIL} pkg info | grep ${PHP_PHAR} | grep ^${PHP_PHAR} |
 if [[ $PKG_INFO == "phar" ]]; then
    echo
 else
-   print_msg "php74-phar does not exits will install"
+   print_msg "php74-phar does not exist, will install"
    iocage exec ${JAIL} "pkg install -y $PHP_PHAR"
 fi
 if [[ "${FILES_PATH}" = "/" ]]; then
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-cli.phar" ]; then
-      print_msg  "wp-cli.phar does not exist will install"
+      print_msg  "wp-cli.phar does not exist, will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
     fi
 else
    if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-cli.phar" ]; then
-      print_msg  "wp-cli.phar does not exist will install"
+      print_msg  "wp-cli.phar does not exist, will install"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar"
       iocage exec ${JAIL} "cd ${JAIL_FILES_LOC} && chmod +x wp-cli.phar"
     fi
@@ -259,7 +259,7 @@ maintenance_activate
   fi  
     print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
 if [[ "${FILES_PATH}" = "/" ]]; then
-      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} ."
+#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} .
 else
       echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
