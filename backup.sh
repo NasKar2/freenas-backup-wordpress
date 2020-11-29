@@ -439,7 +439,12 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
      print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
-  if [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
+
+  if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
+       print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
+       sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
+  fi
+
      if (( $DB_VERSION >= 104 )); then
         echo "before mysql >104"      
         iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
@@ -447,28 +452,11 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
         echo "before mysql <104"
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
-  fi
+  
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
-escaped_passwords
-fi
-if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
-     print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
-     sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
-     print_msg "Importing ${BACKUP_NAME} into ${DB_BACKUP_NAME}"
-     if (( $DB_VERSION >= 104 )); then
-        iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
-     else
-        iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
-     fi
-  # edit wp-config.php
-     print_msg "Changing ${CONFIG_PHP} password to match new install"
-     WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
-escaped_passwords
-fi
-
-if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
-
+     escaped_passwords
+else
    print_msg "Restore Database No Migration"
      if (( $DB_VERSION >= 104 )); then
         iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
@@ -480,5 +468,5 @@ fi
 maintenance_deactivate
    iocage restart ${JAIL}
    echo
-fi
 
+fi
