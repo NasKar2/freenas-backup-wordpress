@@ -219,11 +219,12 @@ else
    DB_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_PASSWORD | cut -d '"' -f2`
   if (( $DB_VERSION >= 104 )); then
    if [ -z "${DB_PASSWORD}" ]; then
-      print_err "The password file is corrupt."
+      print_err "The password file DB_VERSION >= 10.4 is corrupt."
    fi
   else
+   DB_ROOT_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_ROOT_PASSWORD | cut -d '"' -f2`
    if [ -z "${DB_ROOT_PASSWORD}" ] || [ -z "${DB_PASSWORD}" ]; then
-      print_err "The password file is corrupt."
+      print_err "The password file DB_VERSION < 10.4 is corrupt."
       exit 1
    fi
   fi
