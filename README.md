@@ -10,7 +10,9 @@ This script will work with FreeNAS 11.3, and it should also work with TrueNAS CO
 
 ### Prerequisites
 The backup script assumes that your WordPress data is kept outside the WordPress jail.
-You must have a working Wordpress install to use this script.
+- You must have a working Wordpress install to use this script.
+- You need to have a file /root/<JAIL_NAME>_db_password.txt containing the DB_PASSWORD if MariaDB ver 10.4 or higher. If less than 10.4 you also need the DB_ROOT_PASSWORD in the file.
+More details can be found in the MariaDB Versions section.
 
 ### Installation
 Download the repository to a convenient directory on your FreeNAS system by changing to that directory and running `git clone https://github.com/naskar2/freenas-backup-wordpress`.  Then change into the new `freenas-backup-wordpress` directory.
@@ -23,19 +25,14 @@ JAIL_NAME="wp-blog"
 ```
 All options have sensible defaults, which can be adjusted if needed. These are:
 
-- JAIL_NAME: The name of the jail, defaults to `wordpress`. Can be multiple jails separated by a space. Or you can specify jails after the script name to overide the setting in backup-config
+- JAIL_NAME: The name of the jail, defaults to `wordpress`. Can be multiple jails separated by a space. Or you can specify jails after the script name separated by a space to overide the setting in backup-config
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
-- APPS_PATH: Location of apps
-- FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress. Or 'files' if pool/apps/wordpress/files
-- DB_ROOT_PASSWORD: Password for DB user root. Default is to read this from /root/wordpress_db_password.txt if the install script was used or specify this variable in the backup-config file. 
-- DB_PASSWORD: Password for DB user. Default is to read this from /root/wordpress_db_password.txt if the install script was used or specify this variable in the backup-config file. 
-- DB_USER: Name of the DB user. Default assumes the user is `wordpress`.
+- APPS_PATH: Location of apps folder.
+- FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress/. Or 'files' if pool/apps/wordpress/files/
 - DATABASE_NAME: Defaults to wordpress
-- DB_BACKUP_NAME: Defaults to wordpress.sql
-- BACKUP_NAME: The name of the backup file. Defaults to `<JAIL_NAME>.tar.gz`. 
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
-- DB_SQL: The SQL file used used to backup/restore your WordPress database. Defaults to `wordpress.sql`.
-- MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited.
+- JAIL_FILES_LOC: Location of wordpress files in the jail.  Default is /usr/local/www/wordpress
+- MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited. If set to 2 only the latest 2 backups will be kept.
 
 Some examples follow:
 
@@ -55,15 +52,20 @@ JAIL_NAME="personal"
 BACKUP_PATH="temp"
 ```
 
-#### 4. *'I haven't used the install script. My DB user is `naskar`.*
+#### 4. *'I haven't used the install script.
 backup-config:
 ```
 JAIL_NAME="personal"
 BACKUP_PATH="/mnt/tank/backup/personal"
-DB_USER="naskar"
 ```
 
 Create the file /root/personal_db_password.txt with
+If MariaDB version >= 10.4
+```
+DB_PASSWORD="alakazam"
+```
+
+If MariaDB version < 10.4
 ```
 DB_ROOT_PASSWORD="abracadabra"
 DB_PASSWORD="alakazam"
@@ -75,16 +77,23 @@ JAIL_NAME="wordpress personal"
 ```
 
 ## Backup
-Once you've prepared the configuration file (if required), run the script `script backup.log ./backup.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
-The script will keep 2 backups deleting the oldest unless you add the MAX_NUM_BACKUPS to the backup-config. 
+Once you've prepared the configuration file (if required), and the <JAIL_NAME>_db_password.txt file, run the script `script backup.log ./backup.sh`. You will be prompted to (B)ackup or (R)estore. Choose backup. 
+After choosing 'B' wordpress will be placed in maintenance mode temporarily till the backup is completed.
+This will prevent any changes from occurring during the backup process.
+The script will keep unlimited backups unless you add the MAX_NUM_BACKUPS to the backup-config.
+If you set MAX_NUM_BACKUPS to 2 it will delete all backups except for the 2 most recent ones. 
 To automate backup, create a cron job pointing to the backup script. The prompts wll be bypassed in any non-interactive operation like a cron task in the FreeNAS GUI.
 
 ## Restore
 **WARNING: A restore overwrites any existing WordPress data!!!**
 
-Once you've prepared the configuration file (if required), run the script `script backup.log ./backup-jail.sh`. You will be prompted to (B)ackup or (R)estore. Choose restore.
+Once you've prepared the configuration file (if required), and the <JAIL_NAME>_db_password.txt file, run the script `script backup.log ./backup-jail.sh`.
+You will be prompted to (B)ackup or (R)estore. Choose restore.
+After choosing 'R' wordpress will be placed in maintenance mode temporarily till the restore is completed.  
+This will prevent any changes from occurring during the restore process.
 You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
-
+**If you get an error "Error establishing a database connection." that means you are trying to retore a backup with a different password than your current install.
+You will need to do a do a Migration instead and set the OLD_IP and NEW_IP to same IP address. See Migrate section below.**
 
 ## Migrate
 **WARNING: A restore overwrites any existing WordPress data!!!**
@@ -100,7 +109,6 @@ Data needs to be changed to match your requirements. Remember the password to ac
 ```
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
 OLD_IP="192.168.5.76"
 NEW_IP="192.168.5.77"
 ```
@@ -109,7 +117,6 @@ NEW_IP="192.168.5.77"
 ```
 BACKUP_NAME="wordpress.tar.gz"
 DATABASE_NAME="wordpress"
-DB_BACKUP_NAME="wordpress.sql"
 OLD_IP="192.168.5.76"
 NEW_IP="192.168.1.77"
 OLD_GATEWAY="192.168.5.1"
@@ -126,7 +133,7 @@ JAIL_NAME="wordpress, personal"
 ## MariaDB Versions
 The script checks for the version of MariaDB in you jail install.  If 10.4 or higher using the default Authenication Plugin, no DB_ROOT_PASSWORD is needed in the {JAIL}_db_password.txt.
 If 10.3 or lower using the default Authenication Plugin, it requires a DB_ROOT_PASSWORD and DB_PASSWORD in the {JAIL}_db_password.txt.
-Ideally it would be best to create a test for the Authentication Plugin but I'm not aware of how to do this test.
+Ideally it would be best to create a test for the Authentication Plugin but I'm not aware of how to do this test at this time.
 
 ## Support and Discussion
 Reference: [WordPress Backups](https://wordpress.org/support/article/wordpress-backups/)
