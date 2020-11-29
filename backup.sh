@@ -44,6 +44,15 @@ ESCAPED_DB_PASSWORD=$(printf '%s\n' "$DB_PASSWORD" | sed -e 's/[]\/$*.^|[]/\\&/g
 sed -i '' "s/$ESCAPED_WPDBPASS/$ESCAPED_DB_PASSWORD/" ${CONFIG_PHP}
 }
 
+jail_test () {
+JAIL_TEST=$(iocage get type $JAIL)
+#echo $JAIL_TEST
+if ! [ "$JAIL_TEST" = "jail" ]; then
+ print_err "The jail ${JAIL} does not exist"
+ exit 1
+fi
+}
+
 # Check for root privileges
 if ! [ $(id -u) = 0 ]; then
    print_err "This script must be run with root privileges"
@@ -153,6 +162,10 @@ DATE=$(date +'_%F_%H%M')
 i=0
 for JAIL in "${array[@]}"
 do
+
+# Check if Jail exists
+jail_test
+
 # Check is Jail is up, valid wordpress or down
    if [ $(iocage get -s ${JAIL} ) = "up" ]; then
      if [[ "${FILES_PATH}" = "/" ]]; then
@@ -162,7 +175,6 @@ do
        fi
      else
        if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-config.php" ]; then
-echo "FILES_PATH check"
          print_err "This jail ${JAIL} is not a wordpress jail"
          exit 1
        fi
