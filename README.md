@@ -92,7 +92,7 @@ You will be prompted to (B)ackup or (R)estore. Choose restore.
 After choosing 'R' wordpress will be placed in maintenance mode temporarily till the restore is completed.  
 This will prevent any changes from occurring during the restore process.
 You will get a list of backups to choose from. Pick the one with the date stamp you want to restore.
-**If you get an error "Error establishing a database connection." that means you are trying to retore a backup with a different password than your current install.
+**If you get an error "Error establishing a database connection." that means you are trying to restore a backup with a different password than your current install.
 You will need to do a do a Migration instead and set the OLD_IP and NEW_IP to same IP address. See Migrate section below.**
 
 ## Migrate
