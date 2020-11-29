@@ -38,6 +38,11 @@ maintenance_deactivate () {
 iocage exec ${JAIL} " wp --path="${JAIL_FILES_LOC}" maintenance-mode deactivate"
 }
 
+escaped_passwords () {
+ESCAPED_WPDBPASS=$(printf '%s\n' "$WPDBPASS" | sed -e 's/[]\/$*.^|[]/\\&/g');
+ESCAPED_DB_PASSWORD=$(printf '%s\n' "$DB_PASSWORD" | sed -e 's/[]\/$*.^|[]/\\&/g');
+sed -i '' "s/$ESCAPED_WPDBPASS/$ESCAPED_DB_PASSWORD/" ${CONFIG_PHP}
+}
 
 # Check for root privileges
 if ! [ $(id -u) = 0 ]; then
@@ -199,7 +204,7 @@ if ! [ -e "/root/${JAIL}_db_password.txt" ]; then
   fi
 else
    # It does exist. Check for the existence of password variables in the password file.
-   . "/root/${JAIL}_db_password.txt"
+   DB_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_PASSWORD | cut -d '"' -f2`
   if (( $DB_VERSION >= 104 )); then
    if [ -z "${DB_PASSWORD}" ]; then
       print_err "The password file is corrupt."
@@ -227,6 +232,10 @@ done
 if ! [ -t 1 ] ; then
   # Not run interactively
   choice="B"
+
+elif [ "${MIGRATE_IP}" == "TRUE" ]; then
+  choice="R"
+  print_msg "A Migration has been chosen so will go to (R)estore automatically"
 else
   read -p "Enter '(B)ackup' to backup Nextcloud or '(R)estore' to restore Nextcloud: " choice
   while [ "$choice" != "B" ] && [ "$choice" != "b" ] && [ "$choice" != "R" ] && [ "$choice" != "r" ];
@@ -412,6 +421,7 @@ else
      tar -xzf ${POOL_PATH}/${BACKUP_PATH}/${JAIL}/${BACKUP_NAME} -C ${RESTORE_DIR}/${FILES_PATH}
     chown -R www:www ${RESTORE_DIR}/${FILES_PATH}
 fi
+     WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
 if [ "${MIGRATE_IP}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_IP} to ${NEW_IP}"
      sed -i '' "s/${OLD_IP}/${NEW_IP}/g" ${APPS_DIR_SQL}
@@ -427,8 +437,7 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
   fi
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
-     WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
-     sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
+escaped_passwords
 fi
 if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
      print_msg "Migrating ${DB_BACKUP_NAME} from ${OLD_GATEWAY} to ${NEW_GATEWAY}"
@@ -442,8 +451,7 @@ if [ "${MIGRATE_GATEWAY}" == "TRUE" ]; then
   # edit wp-config.php
      print_msg "Changing ${CONFIG_PHP} password to match new install"
      WPDBPASS=`cat ${CONFIG_PHP} | grep DB_PASSWORD | cut -d \' -f 4`
-     sed -i '' "s|${WPDBPASS}|${DB_PASSWORD}|" ${CONFIG_PHP}
-#maintenance_deactivate
+escaped_passwords
 fi
 
 if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
@@ -454,14 +462,10 @@ if [ "${MIGRATE_IP}" != "TRUE" ] && [ "${MIGRATE_GATEWAY}" != "TRUE" ]; then
      else
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
-#maintenance_deactivate
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
 maintenance_deactivate
    iocage restart ${JAIL}
    echo
-else
-  print_err "Must enter '(B)ackup' to backup Wordpress or '(R)estore' to restore app directory: "
-  echo
 fi
 
