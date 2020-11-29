@@ -150,10 +150,8 @@ for JAIL in "${array[@]}"
 do
 # Check is Jail is up, valid wordpress or down
    if [ $(iocage get -s ${JAIL} ) = "up" ]; then
-echo "JAIL IS UP"
      if [[ "${FILES_PATH}" = "/" ]]; then
        if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-config.php" ]; then
-echo "/"
          print_err "This jail ${JAIL} is not a wordpress jail"
          exit 1
        fi
@@ -336,6 +334,15 @@ for JAIL in "${array[@]}"; do echo; done
 if [[ "${#array[@]}" > "1" ]]; then
 echo "There are ${#array[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array[@]}"; do echo; break; done
+while [[ ! $REPLY -le ${#array[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]];
+do
+if [[ ! $REPLY -le ${#array[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]]; then
+  #clear
+  print_err "$REPLY is invalid try again"
+fi                                                                         
+select JAIL in "${array[@]}"; do echo; break; done
+done
+
 print_msg "You choose the jail '${JAIL}' to restore"
 fi
 DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
