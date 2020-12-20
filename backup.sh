@@ -76,14 +76,9 @@ NEW_GATEWAY=""
 MAX_NUM_BACKUPS=""
 
 # Check if backup-config exists and read the file
-if [ -e "backup-config" ]; then 
   SCRIPT=$(readlink -f "$0")
   SCRIPTPATH=$(dirname "$SCRIPT")
   . $SCRIPTPATH/backup-config
-  print_msg "backup-config exists will read it"
-else
-  print_msg "backup-config does not exist will use defaults"
-fi
 
 # Check if backup-config created correctly or set defaults
 if [ -z $POOL_PATH ]; then
