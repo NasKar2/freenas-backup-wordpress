@@ -90,8 +90,25 @@ if [[ -z "$JAIL_NAME" ]] && [[ $# = 0 ]]; then
   print_msg "JAIL_NAME not set will default to 'wordpress'"
 fi
 if [ -z $APPS_PATH ]; then
-  APPS_PATH="apps"
-  print_msg "APPS_PATH defaulting to 'apps'"
+  WP_INSTALL=`find $POOL_PATH/apps -name "wp-config.php"`
+  apps_loc=($WP_INSTALL)
+  for diff_install in "${apps_loc[@]}"; do
+   diff_install=${diff_install#/mnt/v1/}
+   diff_install=${diff_install%/wp-config.php}
+   diff_install=${diff_install%/files}
+   diff_install=${diff_install%/*}
+   apps_array+=($diff_install)
+  done
+  for test in "${apps_array[@]}"; do
+   #echo "test=${test}"
+   test2="${apps_array[0]}"
+    if [[ "$test2" != "$test" ]]; then
+     print_err "Wordpress root directories are not the same - You must set APPS_PATH in the backup-config to choose the apps location"
+     exit
+    fi
+  done
+  APPS_PATH=$test
+  print_msg "Wordpress root directories are the same so will set APPS_PATH=$test"
 fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
