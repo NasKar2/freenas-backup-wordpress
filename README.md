@@ -27,7 +27,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 
 - JAIL_NAME: The name of the jail, defaults to `wordpress`. Can be multiple jails separated by a space. Or you can specify jails after the script name separated by a space to overide the setting in backup-config
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
-- APPS_PATH: Location of apps folder.
+- APPS_PATH: Location of apps folder. Will be set automatically by finding wordpress installs. Set only if installs have different root directories. See example #6.
 - FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress/. Or 'files' if pool/apps/wordpress/files/
 - DATABASE_NAME: Defaults to wordpress
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
@@ -74,6 +74,23 @@ DB_PASSWORD="alakazam"
 #### 5. *'I want to backup multiple sites (wordpress and personal) at the same time'*
 ```
 JAIL_NAME="wordpress personal"
+```
+or
+
+Execute the command `script backup.log ./backup.sh wordpress personal`
+
+#### 6. *'I have 2 wordpress installs at different root directories'*
+
+One at `/mnt/v1/apps/wordpress/files` and another at `/mnt/v1/apps/wordpress/Site1/files`.
+
+The JAIL names are `wordpress` and `Site 1` respectively.
+
+The root directories are `/mnt/v1/apps` and `/mnt/v1/apps/wordpress` respectively.
+
+You have to pick one or the other because the root directories are different. Will pick the 2nd one.
+```
+JAIL_NAME="Site1"
+APPS_PATH="apps/wordpress"
 ```
 
 ## Backup
