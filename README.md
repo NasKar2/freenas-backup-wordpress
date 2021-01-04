@@ -75,6 +75,9 @@ DB_PASSWORD="alakazam"
 ```
 JAIL_NAME="wordpress personal"
 ```
+or
+
+Execute the command `script backup.log ./backup.sh wordpress personal`
 
 #### 6. *'I have 2 wordpress installs at different root directories'*
 
