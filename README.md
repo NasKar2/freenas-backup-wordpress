@@ -76,13 +76,15 @@ DB_PASSWORD="alakazam"
 JAIL_NAME="wordpress personal"
 ```
 
-#### 6. *'I have 2 wordpress installs one at `/mnt/v1/apps/wordpress/files` and another at `/mnt/v1/apps/wordpress/Site1/files`'*
+#### 6. *'I have 2 wordpress installs at different root directories'*
+
+One at `/mnt/v1/apps/wordpress/files` and another at `/mnt/v1/apps/wordpress/Site1/files`.
 
 The JAIL names are wordpress and Site 1 respectively.
 
-The root directories are '/mnt/v1/apps' and '/mnt/v1/apps/wordpress'.
+The root directories are '/mnt/v1/apps' and '/mnt/v1/apps/wordpress' respectively.
 
-You have to pick one or the other. Will pick the 2nd one.
+You have to pick one or the other because the root directories are different. Will pick the 2nd one.
 ```
 JAIL_NAME="Site1"
 APPS_PATH="apps/wordpress"
