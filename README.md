@@ -80,9 +80,9 @@ JAIL_NAME="wordpress personal"
 
 One at `/mnt/v1/apps/wordpress/files` and another at `/mnt/v1/apps/wordpress/Site1/files`.
 
-The JAIL names are wordpress and Site 1 respectively.
+The JAIL names are `wordpress` and `Site 1` respectively.
 
-The root directories are '/mnt/v1/apps' and '/mnt/v1/apps/wordpress' respectively.
+The root directories are `/mnt/v1/apps` and `/mnt/v1/apps/wordpress` respectively.
 
 You have to pick one or the other because the root directories are different. Will pick the 2nd one.
 ```
