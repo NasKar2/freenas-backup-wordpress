@@ -92,8 +92,9 @@ fi
 if [ -z $APPS_PATH ]; then
   WP_INSTALL=`find $POOL_PATH/apps -name "wp-config.php"`
   apps_loc=($WP_INSTALL)
+  pool_trim=$POOL_PATH"/"
   for diff_install in "${apps_loc[@]}"; do
-   diff_install=${diff_install#/mnt/v1/}
+   diff_install=${diff_install#$pool_trim}
    diff_install=${diff_install%/wp-config.php}
    diff_install=${diff_install%/files}
    diff_install=${diff_install%/*}
