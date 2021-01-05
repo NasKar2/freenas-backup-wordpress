@@ -107,8 +107,16 @@ if [ -z $APPS_PATH ]; then
      exit
     fi
   done
-  APPS_PATH=$test
-  print_msg "Wordpress root directories are the same so will set APPS_PATH=$test"
+  APPS_PATH="/"$test
+  print_msg "Wordpress root directories are the same so will set APPS_PATH=${APPS_PATH}"
+elif [ "$APPS_PATH" = "/" ]; then
+  #echo "APPS_PATH=${APPS_PATH}"
+  APPS_PATH=""
+  #echo "new APPS_PATH=${APPS_PATH}"
+else
+  APPS_PATH=${APPS_PATH#/}
+  APPS_PATH="/"${APPS_PATH}
+  #echo "APPS_PATH added a / ${APPS_PATH}"
 fi
 if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
@@ -181,12 +189,12 @@ jail_test
 # Check is Jail is up, valid wordpress or down
    if [ $(iocage get -s ${JAIL} ) = "up" ]; then
      if [[ "${FILES_PATH}" = "/" ]]; then
-       if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/wp-config.php" ]; then
+       if [ ! -e "${POOL_PATH}${APPS_PATH}/${JAIL}/wp-config.php" ]; then
          print_err "This jail ${JAIL} is not a wordpress jail"
          exit 1
        fi
      else
-       if [ ! -e "${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-config.php" ]; then
+       if [ ! -e "${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH}/wp-config.php" ]; then
          print_err "This jail ${JAIL} is not a wordpress jail"
          exit 1
        fi
@@ -196,9 +204,9 @@ jail_test
      exit 1
    fi
 
-# Check if ${POOL_PATH}/${APPS_PATH}/${JAIL} exists
-   if [[ ! -d "${POOL_PATH}/${APPS_PATH}/${JAIL}" ]]; then
-         print_err "********* ${POOL_PATH}/${APPS_PATH}/${JAIL} does not exist. There must not be a wordpress install in that data directory."
+# Check if ${POOL_PATH}${APPS_PATH}/${JAIL} exists
+   if [[ ! -d "${POOL_PATH}${APPS_PATH}/${JAIL}" ]]; then
+         print_err "********* ${POOL_PATH}${APPS_PATH}/${JAIL} does not exist. There must not be a wordpress install in that data directory."
          exit 1
    fi
 # Check if "/root/${JAIL}_db_password.txt" exists
@@ -284,11 +292,11 @@ JAIL=${array[$i]}
 echo "*********************************************************************"
 BACKUP_NAME="${JAIL}${DATE}.tar.gz"
 print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
-# Check if ${POOL_PATH}/${APPS_PATH}/${JAIL} exists
-   if [ ! -d "${POOL_PATH}/${APPS_PATH}/${JAIL}" ]
+# Check if ${POOL_PATH}${APPS_PATH}/${JAIL} exists
+   if [ ! -d "${POOL_PATH}${APPS_PATH}/${JAIL}" ]
    then
 #         mkdir -p $RESTORE_DIR
-         print_err "${POOL_PATH}/${APPS_PATH}/${JAIL} does not exist. You are trying to backup a data directory that doesn't exist."
+         print_err "${POOL_PATH}${APPS_PATH}/${JAIL} does not exist. You are trying to backup a data directory that doesn't exist."
          exit 1
 #         print_msg "Create directory ${RESTORE_DIR}"
    fi
@@ -313,11 +321,11 @@ maintenance_activate
   fi  
     print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
 if [[ "${FILES_PATH}" = "/" ]]; then
-#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} ."
-      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL} .
+#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL} ."
+      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL} .
 else
-#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} ."
-      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${APPS_PATH}/${JAIL}/${FILES_PATH} .
+#      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH} ."
+      tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
 fi
       print_msg "${JAIL} files backup complete"
@@ -389,7 +397,7 @@ DB_PASSWORD=""
 #   . "/root/${JAIL}_db_password.txt"
 DB_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_PASSWORD | cut -d '"' -f2`
 DB_ROOT_PASSWORD=`cat /root/${JAIL}_db_password.txt | grep DB_ROOT_PASSWORD | cut -d '"' -f2`
-RESTORE_DIR=${POOL_PATH}/${APPS_PATH}/${JAIL}
+RESTORE_DIR=${POOL_PATH}${APPS_PATH}/${JAIL}
 if [[ "${FILES_PATH}" = "/" ]]; then
    APPS_DIR_SQL=${RESTORE_DIR}/${DB_BACKUP_NAME}
    CONFIG_PHP="${RESTORE_DIR}/wp-config.php"
@@ -403,7 +411,7 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
    then
 #         mkdir -p $RESTORE_DIR
          print_err "$RESTORE_DIR does not exist. You must set the JAIL_NAME variable in the config to name of the wordpress DATA directory"
-         print_err "This will be in the ${POOL_PATH}/${APPS_PATH} directory"
+         print_err "This will be in the ${POOL_PATH}${APPS_PATH} directory"
          exit 1
 #         print_msg "Create directory ${RESTORE_DIR}"
    fi

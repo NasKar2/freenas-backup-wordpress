@@ -28,6 +28,8 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - JAIL_NAME: The name of the jail, defaults to `wordpress`. Can be multiple jails separated by a space. Or you can specify jails after the script name separated by a space to overide the setting in backup-config
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
 - APPS_PATH: Location of apps folder. Will be set automatically by finding wordpress installs. Set only if installs have different root directories. See example #6.
+  If you installed wordpress in the root of the pool '/mnt/v1' the script will not be able to automatically detect it.
+  Set APPS_PATH="/" which will leave it blank in the script. See example #7
 - FILE_PATH: Location of wordpress files. '/' if pool/apps/wordpress/. Or 'files' if pool/apps/wordpress/files/
 - DATABASE_NAME: Defaults to wordpress
 - DB_NAME: The name of your WordPress database. Defaults to `wordpress`.
@@ -91,6 +93,14 @@ You have to pick one or the other because the root directories are different. Wi
 ```
 JAIL_NAME="Site1"
 APPS_PATH="apps/wordpress"
+```
+
+#### 7. *'I have install wordpress in the pool root directory'*
+
+The JAIL name is "apple" and was installed to '/mnt/v1/apple' where the pool is '/mnt/v1'.
+```
+JAIL_NAME="apple"
+APPS_PATH="/"
 ```
 
 ## Backup
