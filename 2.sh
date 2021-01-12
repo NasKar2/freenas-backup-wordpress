@@ -401,7 +401,7 @@ print_msg "You choose the jail '${JAIL}' to restore at '$POOL_PATH$APPS_PATH'"
 #fi
 DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
 DB_VERSION="${DB_VERSION//.}"
-
+done
 # Read the password file.
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
