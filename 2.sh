@@ -376,6 +376,7 @@ elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 #for dir in "${array_arg_apps[@]}"; do echo $dir; done
 #APPS_PATH="${array_arg_apps[1]}"
 echo "@@@@@@@@@"
+echo "${#array_arg[@]}"
 if [[ "${#array_arg[@]}" > "1" ]]; then
 echo "There are ${#array_arg[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array_arg[@]}"; do echo; break; done
