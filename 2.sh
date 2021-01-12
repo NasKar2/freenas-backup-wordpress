@@ -500,4 +500,6 @@ fi
 maintenance_deactivate
    iocage restart ${JAIL}
    echo
-#fi
+else
+  echo ""
+fi
