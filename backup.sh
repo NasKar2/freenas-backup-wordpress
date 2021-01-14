@@ -73,7 +73,7 @@ OLD_IP=""
 NEW_IP=""
 OLD_GATEWAY=""
 NEW_GATEWAY=""
-MAX_NUM_BACKUPS=""
+MAX_NUM_BACKUPS=0
 
 # Check if backup-config exists and read the file
   SCRIPT=$(readlink -f "$0")
@@ -137,7 +137,6 @@ if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
 fi
 
 # Get all wordpress installs and place jail name in array_jail and apps location in array_apps
-    FIND_DIR=$POOL_PATH
     WP_INSTALL=`find ${FIND_DIR} -name "wp-config.php"`
     apps_loc=($WP_INSTALL)
     for i in "${!apps_loc[@]}"; do
@@ -161,7 +160,6 @@ fi
 if [[ $# = 0 ]] && [[ ! -z $JAIL_NAME ]]; then
    unset array_arg
    array_arg=(${JAIL_NAME})
-#   for dir in "${array_arg[@]}"; do echo $dir; done
          for arg in "${!array_arg[@]}"; do
               value="${array_arg[$arg]}"
             for i in "${!array_jail[@]}"; do
@@ -373,9 +371,7 @@ done
 elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 
 # LOOP Restore #
-#for dir in "${array_arg_apps[@]}"; do echo $dir; done
-#APPS_PATH="${array_arg_apps[1]}"
-echo "@@@@@@@@@"
+#echo "${#array_arg[@]}"
 if [[ "${#array_arg[@]}" > "1" ]]; then
 echo "There are ${#array_arg[@]} jails available to restore, pick the one to restore"; \
 select JAIL in "${array_arg[@]}"; do echo; break; done
@@ -385,22 +381,21 @@ if [[ ! $REPLY -le ${#array_arg[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "
   #clear
   print_err "$REPLY is invalid try again"
 fi                                                                         
-select JAIL in "${array_arg[@]}"; do echo; break; done
-
-echo "REPLY=${REPLY}"
-echo "${array_arg_apps[$REPLY]}"
-for dir in "${array_arg[@]}"; do echo $dir; done
+select JAIL in "${array_arg[@]}"; do echo; done
+done
+REPLY=$((REPLY-1))
+#for dir in "${array_arg[@]}"; do echo $dir; done
 APPS_PATH="${array_arg_apps[$REPLY]}"
 if [ $APPS_PATH != "/" ]; then
     APPS_PATH="/"$APPS_PATH
 fi
-echo "APPS_PATH=${APPS_PATH}"
-
 print_msg "You choose the jail '${JAIL}' to restore at '$POOL_PATH$APPS_PATH'"
 #fi
 DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
 DB_VERSION="${DB_VERSION//.}"
+#done
 
+fi
 # Read the password file.
 # Reset PASSWORDS
 DB_ROOT_PASSWORD=""
@@ -431,9 +426,9 @@ backupMainDir="${POOL_PATH}/${BACKUP_PATH}"
 cd "${POOL_PATH}/${BACKUP_PATH}/${JAIL}"
 shopt -s  nullglob
 array=(${JAIL}*.tar.gz)
-for dir in "${array[@]}"; do echo; done
+#for dir in "${array[@]}"; do echo; done
 
-for dir in */; do echo; done
+#for dir in */; do echo; done
 
 if [ ${#array[@]} = 0 ]; then
 print_err "There are ${#array[@]} .tar.gz files in the backup directory"
@@ -499,4 +494,6 @@ fi
 maintenance_deactivate
    iocage restart ${JAIL}
    echo
-#fi
+else
+  echo ""
+fi
