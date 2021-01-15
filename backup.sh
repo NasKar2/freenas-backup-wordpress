@@ -137,6 +137,7 @@ if [ ! -z "$OLD_GATEWAY" ] && [ ! -z "$NEW_GATEWAY" ]; then
 fi
 
 # Get all wordpress installs and place jail name in array_jail and apps location in array_apps
+    unset apps_loc
     WP_INSTALL=`find ${FIND_DIR} -name "wp-config.php"`
     apps_loc=($WP_INSTALL)
     for i in "${!apps_loc[@]}"; do
@@ -167,6 +168,11 @@ if [[ $# = 0 ]] && [[ ! -z $JAIL_NAME ]]; then
                   arg_apps_tmp="${array_apps[$i]}"
                   arg_apps="${arg_apps} ${arg_apps_tmp}"
                 fi
+            if [[ ! "${array_jail[@]}" =~ "${value}" ]]; then
+                print_err "The jail ${value} does not exist in the ${FIND_DIR} location, you must set the JAIL_NAME variable for a jail that exists in that location"
+                exit 1
+                # whatever you want to do when array doesn't contain value
+            fi
             done
          done
             #echo "arg_apps=$arg_apps"
@@ -182,24 +188,33 @@ elif [[ ! $# = 0 ]]; then
    #echo "There were $# arguments"
    #for dir in "${array_arg[@]}"; do echo $dir; done
          for arg in "${!array_arg[@]}"; do
-              value="${array_arg[$arg]}"
+          value="${array_arg[$arg]}"
             for i in "${!array_jail[@]}"; do
                 if [[ "${array_jail[$i]}" = "${value}" ]]; then
                   arg_apps_tmp="${array_apps[$i]}"
                   arg_apps="${arg_apps} ${arg_apps_tmp}"
                 fi
+           # done
+           #echo "value=${value}"
+           #echo "array_arg=${array_arg[arg]}"
+            if [[ ! "${array_jail[@]}" =~ "${value}" ]]; then
+                print_err "The jail ${value} does not exist in the ${FIND_DIR} location, you must list an argument for a jail that exists in that location"
+                exit 1
+                # whatever you want to do when array doesn't contain value
+            fi
             done
          done
-            #echo "arg_apps=$arg_apps"
-            array_arg_apps=(${arg_apps})
-           # echo "${array_arg[@]}"
-           # echo "${array_arg_apps[@]}"
+           #echo "arg_apps=$arg_apps"
+           array_arg_apps=(${arg_apps})
+           #echo "${array_arg[@]}"
+           #echo "${array_arg_apps[@]}"
 else
          array_arg=("${array_jail[@]}")
          array_arg_apps=("${array_apps[@]}")
         # echo "array_arg=${array_arg[@]}"
         # echo "array_arg_apps=${array_arg_apps[@]}"
 fi
+
 #
 # Start loop for all jails
 #
