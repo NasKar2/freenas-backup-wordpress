@@ -50,7 +50,7 @@ JAIL_NAME="personal"
 Or can leave it blank and the script will find the install.
 Note: be aware that the jail name is case sensitive.
 
-#### 3. *`I want my backups stored in the pool under a temp directory.'* Will be stored in `/mnt/tank/temp/personal/`
+#### 3. *'I want my backups stored in the pool under a temp directory.'* Will be stored in `/mnt/tank/temp/personal/`
 ```
 JAIL_NAME="personal"
 BACKUP_PATH="temp"
