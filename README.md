@@ -18,7 +18,8 @@ More details can be found in the MariaDB Versions section.
 Download the repository to a convenient directory on your FreeNAS system by changing to that directory and running `git clone https://github.com/naskar2/freenas-backup-wordpress`.  Then change into the new `freenas-backup-wordpress` directory.
 
 ### Setup
-If you've used the previously mentioned install script and accepted the default WordPress jail name `wordpress`, additional setup isn't necessary for the backup script to run. If you have changed the jail name, or have installed WordPress using another method, then create a file called `backup-config` with your favorite text editor.  In its minimal form, it would look something like this:
+If you've used the previously mentioned install script, additional setup isn't necessary for the backup script to run. If you have changed the jail name, or have installed WordPress using another method, then create a file called `backup-config` with your favorite text editor.  
+In its minimal form, it would look something like this:
 
 ```
 JAIL_NAME="wp-blog"
@@ -28,7 +29,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - JAIL_NAME: The name of the jail, defaults to all wordpress installs. Can be multiple jails separated by a space. Or you can specify jails after the script name separated by a space to overide the setting in backup-config.
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
 - FIND_DIR: This is the location to search for wordpress installs. 
-  If all your installs are in '/mnt/v1/apps' when pool path is '/mnt/v1' then *set it to apps to speed up the search process.*
+  If all your installs are in `/mnt/v1/apps` when pool path is `/mnt/v1` then **set it to apps to speed up the search process.**
   If you have an install in the root of the pool you can leave this variable blank and it will default to the pool path. 
   This will take longer as there are more files in the root of the pool.
 - FILE_PATH: Location of wordpress files. The root of wordpress or a subdirectory called files. '/' if `pool/apps/wordpress/`. Or 'files' if `pool/apps/wordpress/files/`
