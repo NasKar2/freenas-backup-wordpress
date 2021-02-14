@@ -204,23 +204,23 @@ echo "Jails in config"
 #           echo "array_arg_loc=${array_arg_loc[@]}"
 
 elif [[ ! $# = 0 ]]; then # jail arguments passed at command prompt
-echo "arguments passed"
+#echo "arguments passed"
   unset array_arg
   for i in $@
    do
    array_arg+=($i)
   done
-   echo "There were $# arguments"
+#   echo "There were $# arguments"
   # echo "array_arg=${array_arg[@]}"
    #for dir in "${array_arg[@]}"; do echo $dir; done
          for arg in "${!array_arg[@]}"; do
-          echo "arg=${arg}"
+#         echo "arg=${arg}"
           value="${array_arg[$arg]}"
-          echo "value=${value}"
+#         echo "value=${value}"
 
             for i in "${!array_jail[@]}"; do
                 if [[ "${array_jail[$i]}" = "${value}" ]]; then
-                    echo "array_apps=${array_apps[$i]}" 
+#                   echo "array_apps=${array_apps[$i]}" 
                     array_arg_apps+=("${array_apps[$i]}")
                     array_arg_files+=("${array_files[$i]}")
                     array_arg_loc+=("${array_loc[$i]}")
@@ -238,7 +238,7 @@ echo "arguments passed"
 #           echo "array_arg_loc=${array_arg_loc[@]}"
 
 else
-echo "else statment all jails"
+#echo "else statment all jails"
          array_arg=("${array_jail[@]}")
          array_arg_apps=("${array_apps[@]}")
          array_arg_files=("${array_files[@]}")
@@ -359,7 +359,7 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
       fi
     JAIL_FILES_LOC="${array_arg_loc[$arg]}"
 
-echo "apps_path=$APPS_PATH"
+# echo "apps_path=$APPS_PATH"
    BACKUP_NAME="${JAIL}${DATE}.tar.gz"
    print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
 # Check if ${POOL_PATH}${APPS_PATH}/${JAIL} exists
