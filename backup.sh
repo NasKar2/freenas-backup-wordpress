@@ -52,6 +52,14 @@ if ! [ "$JAIL_TEST" = "jail" ]; then
 fi
 }
 
+loc_jail () {
+FIND_DIR="/"
+WP_INSTALL=$(iocage exec ${auto_jail} find ${FIND_DIR} -name "wp-config.php")
+#echo "WP_INSTALL=${WP_INSTALL}"
+JAIL_FILES_LOC=${WP_INSTALL%/wp-config.php}
+#echo "JAIL_FILES_LOC=${JAIL_FILES_LOC}"
+}
+
 # Check for root privileges
 if ! [ $(id -u) = 0 ]; then
    print_err "This script must be run with root privileges"
@@ -97,23 +105,12 @@ if [ -z $BACKUP_PATH ]; then
   BACKUP_PATH="backup"
   print_msg "BACKUP_PATH is ${BACKUP_PATH}"
 fi
-if [ -z $FILES_PATH ]; then
-  print_msg "FILES_PATH not set will default to 'files'"
-  FILES_PATH="files"
-fi
 if [ -z $DATABASE_NAME ]; then
   DATABASE_NAME="wordpress"
   print_msg "DATABASE_NAME not set will default to wordpress"
 fi
-
 DB_BACKUP_NAME="wordpress.sql"
 print_msg "DB_BACKUP_NAME set to 'wordpress.sql'"
-
-if [ -z $JAIL_FILES_LOC ]; then
-  JAIL_FILES_LOC="/usr/local/www/wordpress"
-  print_msg "JAIL_FILES_LOC not set will default to '/usr/local/www/wordpress'"
-fi
-
 if [ -z $MAX_NUM_BACKUPS ]; then                                                      
   MAX_NUM_BACKUPS=0
   print_msg "MAX_NUM_BACKUPS not set will default to '0' unlimited"
@@ -139,6 +136,7 @@ fi
 # Get all wordpress installs and place jail name in array_jail and apps location in array_apps
     unset apps_loc
     WP_INSTALL=`find ${FIND_DIR} -name "wp-config.php"`
+#echo "WP_INSTALL=$WP_INSTALL"
     apps_loc=($WP_INSTALL)
     for i in "${!apps_loc[@]}"; do
         host="${apps_loc[i]}"
@@ -149,54 +147,50 @@ fi
     for diff_install in "${apps_loc[@]}"; do
        diff_install=${diff_install#$pool_trim}
        diff_install=${diff_install%/wp-config.php}
+
+       file_check=${diff_install}
+#       echo "file_check=${file_check}"
        diff_install=${diff_install%/files}
+          if [[ "$diff_install" == "$file_check" ]]; then
+#              echo "diff_install=${diff_install} and file_check=${file_check}"
+              auto_file="/"
+          else
+#              echo "diff_install=${diff_install} and file_check=${file_check}"
+              auto_file="files"
+          fi
+#       echo "auto_file=${auto_file}"
+
+      #diff_install=${diff_install%/files}
        auto_jail=${diff_install##*/}
        auto_apps=${diff_install%/*}
+#echo "auto_jail=$auto_jail"
+#echo "auto_apps=$auto_apps"
+loc_jail
           if [[ "$auto_jail" == "$auto_apps" ]]; then
               auto_apps="/"
           fi
        array_jail+=("${auto_jail}")
        array_apps+=("${auto_apps}")
+       array_files+=("${auto_file}")
+       array_loc+=("${JAIL_FILES_LOC}")
     done
-if [[ $# = 0 ]] && [[ ! -z $JAIL_NAME ]]; then
+
+if [[ $# = 0 ]] && [[ ! -z $JAIL_NAME ]]; then # wordpress jails specified in config
+echo "Jails in config"
    unset array_arg
    array_arg=(${JAIL_NAME})
          for arg in "${!array_arg[@]}"; do
-              value="${array_arg[$arg]}"
-            for i in "${!array_jail[@]}"; do
-                if [[ "${array_jail[$i]}" = "${value}" ]]; then
-                  arg_apps_tmp="${array_apps[$i]}"
-                  arg_apps="${arg_apps} ${arg_apps_tmp}"
-                fi
-            if [[ ! "${array_jail[@]}" =~ "${value}" ]]; then
-                print_err "The jail ${value} does not exist in the ${FIND_DIR} location, you must set the JAIL_NAME variable for a jail that exists in that location"
-                exit 1
-                # whatever you want to do when array doesn't contain value
-            fi
-            done
-         done
-            #echo "arg_apps=$arg_apps"
-            array_arg_apps=(${arg_apps})
-            #echo "${array_arg[@]}"
-            #echo "${array_arg_apps[@]}"
-elif [[ ! $# = 0 ]]; then
-  unset array_arg
-  for i in $@
-   do
-   array_arg+=($i)
-  done
-   #echo "There were $# arguments"
-   #for dir in "${array_arg[@]}"; do echo $dir; done
-         for arg in "${!array_arg[@]}"; do
+#         echo "arg=${arg}"
           value="${array_arg[$arg]}"
+#         echo "value=${value}"
+
             for i in "${!array_jail[@]}"; do
                 if [[ "${array_jail[$i]}" = "${value}" ]]; then
-                  arg_apps_tmp="${array_apps[$i]}"
-                  arg_apps="${arg_apps} ${arg_apps_tmp}"
+                    echo "array_apps=${array_apps[$i]}"
+                    array_arg_apps+=("${array_apps[$i]}")
+                    array_arg_files+=("${array_files[$i]}")
+                    array_arg_loc+=("${array_loc[$i]}")
                 fi
-           # done
-           #echo "value=${value}"
-           #echo "array_arg=${array_arg[arg]}"
             if [[ ! "${array_jail[@]}" =~ "${value}" ]]; then
                 print_err "The jail ${value} does not exist in the ${FIND_DIR} location, you must list an argument for a jail that exists in that location"
                 exit 1
@@ -204,17 +198,57 @@ elif [[ ! $# = 0 ]]; then
             fi
             done
          done
-           #echo "arg_apps=$arg_apps"
-           array_arg_apps=(${arg_apps})
-           #echo "${array_arg[@]}"
-           #echo "${array_arg_apps[@]}"
+#           echo "array_arg=${array_arg[@]}"
+#           echo "array_arg_apps=${array_arg_apps[@]}"
+#           echo "array_arg_files=${array_arg_files[@]}"
+#           echo "array_arg_loc=${array_arg_loc[@]}"
+
+elif [[ ! $# = 0 ]]; then # jail arguments passed at command prompt
+echo "arguments passed"
+  unset array_arg
+  for i in $@
+   do
+   array_arg+=($i)
+  done
+   echo "There were $# arguments"
+  # echo "array_arg=${array_arg[@]}"
+   #for dir in "${array_arg[@]}"; do echo $dir; done
+         for arg in "${!array_arg[@]}"; do
+          echo "arg=${arg}"
+          value="${array_arg[$arg]}"
+          echo "value=${value}"
+
+            for i in "${!array_jail[@]}"; do
+                if [[ "${array_jail[$i]}" = "${value}" ]]; then
+                    echo "array_apps=${array_apps[$i]}" 
+                    array_arg_apps+=("${array_apps[$i]}")
+                    array_arg_files+=("${array_files[$i]}")
+                    array_arg_loc+=("${array_loc[$i]}")
+                fi
+            if [[ ! "${array_jail[@]}" =~ "${value}" ]]; then
+                print_err "The jail ${value} does not exist in the ${FIND_DIR} location, you must list an argument for a jail that exists in that location"
+                exit 1
+                # whatever you want to do when array doesn't contain value
+            fi
+            done
+         done
+#           echo "array_arg=${array_arg[@]}"
+#           echo "array_arg_apps=${array_arg_apps[@]}"
+#           echo "array_arg_files=${array_arg_files[@]}"
+#           echo "array_arg_loc=${array_arg_loc[@]}"
+
 else
+echo "else statment all jails"
          array_arg=("${array_jail[@]}")
          array_arg_apps=("${array_apps[@]}")
-        # echo "array_arg=${array_arg[@]}"
-        # echo "array_arg_apps=${array_arg_apps[@]}"
-fi
+         array_arg_files=("${array_files[@]}")
+         array_arg_loc=("${array_loc[@]}")
+#        echo "array_arg=${array_arg[@]}"
+#        echo "array_arg_apps=${array_arg_apps[@]}"
+#        echo "array_arg_files=${array_arg_files[@]}"
+#        echo "array_arg_loc=${array_arg_loc[@]}"
 
+fi
 #
 # Start loop for all jails
 #
@@ -316,9 +350,16 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
   for arg in "${!array_arg[@]}"; do
     JAIL="${array_arg[$arg]}"
     APPS_PATH="${array_arg_apps[$arg]}"
-if [ $APPS_PATH != "/" ]; then
-    APPS_PATH="/"$APPS_PATH
-fi
+      if [ $APPS_PATH != "/" ]; then
+        APPS_PATH="/"$APPS_PATH
+      fi
+    FILES_PATH="${array_arg_files[$arg]}"
+      if [ $FILES_PATH = "/" ]; then
+        FILES_PATH=""
+      fi
+    JAIL_FILES_LOC="${array_arg_loc[$arg]}"
+
+echo "apps_path=$APPS_PATH"
    BACKUP_NAME="${JAIL}${DATE}.tar.gz"
    print_msg "Backing up ${JAIL} to ${BACKUP_NAME}"
 # Check if ${POOL_PATH}${APPS_PATH}/${JAIL} exists
@@ -346,11 +387,11 @@ fi
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
    fi  
       print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
-if [[ "${FILES_PATH}" = "/" ]]; then
-  #echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL} ."
-   tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL} .
+if [[ "${APPS_PATH}" = "/" ]]; then
+   echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${JAIL} ."
+   tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}/${JAIL} .
 else
-  #   echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH} ."
+      echo "tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH} ."
       tar -czf ${POOL_PATH}/backup/${JAIL}/${BACKUP_NAME} -C ${POOL_PATH}${APPS_PATH}/${JAIL}/${FILES_PATH} .
 
 fi
@@ -388,21 +429,30 @@ elif [ "$choice" = "R" ] || [ "$choice" = "r" ]; then
 # LOOP Restore #
 #echo "${#array_arg[@]}"
 if [[ "${#array_arg[@]}" > "1" ]]; then
-echo "There are ${#array_arg[@]} jails available to restore, pick the one to restore"; \
-select JAIL in "${array_arg[@]}"; do echo; break; done
-while [[ ! $REPLY -le ${#array_arg[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]];
-do
-if [[ ! $REPLY -le ${#array_arg[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]]; then
-  #clear
-  print_err "$REPLY is invalid try again"
-fi                                                                         
+   echo "There are ${#array_arg[@]} jails available to restore, pick the one to restore"; \
+   select JAIL in "${array_arg[@]}"; do echo; break; done
+   while [[ ! $REPLY -le ${#array_arg[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]];
+   do
+     if [[ ! $REPLY -le ${#array_arg[@]} ]] || [[ ! "$REPLY" =~ ^[0-9]+$ ]] || [[ ! "$REPLY" -ne 0 ]]; then
+      #clear
+      print_err "$REPLY is invalid try again"
+     fi                                                                         
 select JAIL in "${array_arg[@]}"; do echo; done
 done
 REPLY=$((REPLY-1))
 #for dir in "${array_arg[@]}"; do echo $dir; done
 APPS_PATH="${array_arg_apps[$REPLY]}"
+FILES_PATH="${array_arg_files[$REPLY]}"
+JAIL_FILES_LOC="${array_arg_loc[$REPLY]}"
 if [ $APPS_PATH != "/" ]; then
     APPS_PATH="/"$APPS_PATH
+else
+    APPS_PATH=""
+fi
+if [ $FILES_PATH != "/" ]; then
+    FILES_PATH=$FILES_PATH
+else
+    FILES_PATH=""
 fi
 print_msg "You choose the jail '${JAIL}' to restore at '$POOL_PATH$APPS_PATH'"
 #fi

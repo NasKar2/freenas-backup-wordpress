@@ -32,9 +32,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
   If all your installs are in `/mnt/v1/apps` when pool path is `/mnt/v1` then **set it to apps to speed up the search process.**
   If you have an install in the root of the pool you can leave this variable blank and it will default to the pool path. 
   This will take longer as there are more files in the root of the pool.
-- FILE_PATH: Location of wordpress files. The root of wordpress or a subdirectory called files. '/' if `pool/apps/wordpress/`. Or 'files' if `pool/apps/wordpress/files/`
 - DATABASE_NAME: Defaults to `wordpress`
-- JAIL_FILES_LOC: Location of wordpress files in the jail.  Default is `/usr/local/www/wordpress`
 - MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited. If set to 2 only the latest 2 backups will be kept.
 
 Some examples follow:
