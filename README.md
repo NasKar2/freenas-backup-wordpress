@@ -29,7 +29,7 @@ All options have sensible defaults, which can be adjusted if needed. These are:
 - JAIL_NAME: The name of the jail, defaults to all wordpress installs. Can be multiple jails separated by a space. Or you can specify jails after the script name separated by a space to overide the setting in backup-config.
 - BACKUP_PATH: Backups are stored in this location. Default is the subdirectory `backup` under the pool path.
 - FIND_DIR: This is the location to search for wordpress installs. 
-  If all your installs are in `/mnt/v1/apps` when pool path is `/mnt/v1` then **set it to apps to speed up the search process.**
+  If all your installs are in `/mnt/v1/apps` when pool path is `/mnt/v1` then **set it to apps to speed up the search process.** `FIND_DIR="apps"`
   If you have an install in the root of the pool you can leave this variable blank and it will default to the pool path. 
   This will take longer as there are more files in the root of the pool.
 - DATABASE_NAME: Defaults to `wordpress`
@@ -58,12 +58,9 @@ or
 BACKUP_PATH="temp"
 ```
 
-#### 4. *'I haven't used the install script.
+#### 4. *'I haven't used the install script.'
+
 backup-config: is optional
-```
-JAIL_NAME="personal"
-BACKUP_PATH="/mnt/v1/backup/personal"
-```
 
 Create the file /root/personal_db_password.txt with
 If MariaDB version >= 10.4
