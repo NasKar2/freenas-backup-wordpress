@@ -18,7 +18,7 @@ PHP_VER=${PHP_VER//.}
 PHP_PHAR=php${PHP_VER}-phar
 PKG_INFO=$(iocage exec ${JAIL} pkg info | grep ${PHP_PHAR} | grep ^${PHP_PHAR} | cut -d '-' -f2)
 if [[ $PKG_INFO != "phar" ]]; then
-   print_msg "php74-phar does not exist, will install"
+   print_msg $PHP_PHAR" does not exist, will install"
    iocage exec ${JAIL} "pkg install -y $PHP_PHAR"
 fi
    if [ ! -e "${POOL_PATH}/iocage/jails/${JAIL}/root/usr/local/bin/wp" ]; then
@@ -59,7 +59,6 @@ WP_INSTALL=$(iocage exec ${auto_jail} find ${FIND_DIR} -name "wp-config.php")
 JAIL_FILES_LOC=${WP_INSTALL%/wp-config.php}
 #echo "JAIL_FILES_LOC=${JAIL_FILES_LOC}"
 }
-
 # Check for root privileges
 if ! [ $(id -u) = 0 ]; then
    print_err "This script must be run with root privileges"
