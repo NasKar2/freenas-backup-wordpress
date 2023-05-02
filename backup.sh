@@ -31,11 +31,11 @@ fi
 }
 
 maintenance_activate () {
-iocage exec ${JAIL} " wp --path="${JAIL_FILES_LOC}" maintenance-mode activate"
+iocage exec ${JAIL} "wp --path="${JAIL_FILES_LOC}" maintenance-mode activate"
 }
 
 maintenance_deactivate () {
-iocage exec ${JAIL} " wp --path="${JAIL_FILES_LOC}" maintenance-mode deactivate"
+iocage exec ${JAIL} "wp --path="${JAIL_FILES_LOC}" maintenance-mode deactivate"
 }
 
 escaped_passwords () {
