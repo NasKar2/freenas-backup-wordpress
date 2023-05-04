@@ -38,7 +38,10 @@ maintenance_deactivate () {
 iocage exec ${JAIL} "wp --path="${JAIL_FILES_LOC}" maintenance-mode deactivate"
 }
 
+# Check if current DB_PASSWORD is different from the restored wp-config.php and replace
 escaped_passwords () {
+#print_msg "DB_PASSWORD=${DB_PASSWORD}"
+#print_msg "WPDBPASS=${WPDBPASS}"
 ESCAPED_WPDBPASS=$(printf '%s\n' "$WPDBPASS" | sed -e 's/[]\/$*.^|[]/\\&/g');
 ESCAPED_DB_PASSWORD=$(printf '%s\n' "$DB_PASSWORD" | sed -e 's/[]\/$*.^|[]/\\&/g');
 sed -i '' "s/$ESCAPED_WPDBPASS/$ESCAPED_DB_PASSWORD/" ${CONFIG_PHP}
@@ -543,9 +546,6 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
   
-  # edit wp-config.php
-     print_msg "Changing ${CONFIG_PHP} password to match new install"
-     escaped_passwords
 else
    print_msg "Restore Database No Migration"
      if (( $DB_VERSION >= 104 )); then
@@ -555,9 +555,26 @@ else
      fi
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"
 fi
+
+  # edit wp-config.php
+     print_msg "Changing ${CONFIG_PHP} password to match new install"
+     escaped_passwords
+
 maintenance_deactivate
    iocage restart ${JAIL}
    echo
 else
   echo ""
 fi
+
+#echo "JAIL=${JAIL}"
+#echo "BACKUP_PATH=${BACKUP_PATH}"
+#echo "APPS_PATH=${APPS_PATH}"
+#echo "FILES_PATH=${FILES_PATH}"
+#echo "DATABASE_NAME=${DATABASE_NAME}"
+#echo "JAIL_FILES_LOC=${JAIL_FILES_LOC}"
+#echo "BACKUP_NAME=${BACKUP_NAME}"
+#echo "FILES_PATH=${FILES_PATH}"
+#echo "RESTORE_DIR=${RESTORE_DIR}"
+#echo "DB_BACKUP_NAME=${DB_BACKUP_NAME}"
+#echo "APPS_DIR_SQL=${APPS_DIR_SQL}"
