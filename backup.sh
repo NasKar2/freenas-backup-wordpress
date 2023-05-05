@@ -402,6 +402,7 @@ fi
    maintenance_deactivate
 
 # Delete old backups
+print_msg "MAX_NUM_BACKUPS="${MAX_NUM_BACKUPS}
    if [ $MAX_NUM_BACKUPS -ne 0 ]
      then
       print_msg "Maximum number of backups is $MAX_NUM_BACKUPS"
