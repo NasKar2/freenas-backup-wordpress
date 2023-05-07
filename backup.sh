@@ -117,7 +117,11 @@ if [ -z $MAX_NUM_BACKUPS ]; then
   MAX_NUM_BACKUPS=0
   print_msg "MAX_NUM_BACKUPS not set will default to '0' unlimited"
 fi
-
+if [ -z $MYSQL_NATIVE_PASSWORD ]; then
+  MYSQL_NATIVE_PASSWORD=1
+  print_msg "MYSQL_NATIVE_PASSWORD not set will default to 1 use native password"
+fi
+print_msg "MYSQL_NATIVE_PASSWORD=${MYSQL_NATIVE_PASSWORD}"
 if [ ! -z "$OLD_IP" ] && [ ! -z "$NEW_IP" ]; then
    MIGRATE_IP="TRUE"
    print_msg "Set to Migrate IP address from ${OLD_IP} to ${NEW_IP}"
@@ -281,6 +285,7 @@ fi
 
    DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
    DB_VERSION="${DB_VERSION//.}"
+#DB_VERSION="103"
 #   version[i]=$DB_VERSION
 #   echo "version is $version[$i]"
    i=$((i+1))
@@ -383,9 +388,13 @@ if [ "$choice" = "B" ] || [ "$choice" = "b" ]; then
 #   print_err "Current DB_VERSION is "${DB_VERSION}
    phar_install
    maintenance_activate
-   if (( $DB_VERSION >= 104 )); then
+
+print_msg "MYSQL_NATIVE_PASSWORD=${MYSQL_NATIVE_PASSWORD}"
+     if (( $DB_VERSION >= 104 )) && [[ $MYSQL_NATIVE_PASSWORD -eq 0 ]]; then
+      print_msg "DB_VERSION >=104 and no mysql native password"
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
    else
+      print_msg "DB_VERSION <104 and mysql native password is true"
       iocage exec ${JAIL} "mysqldump --single-transaction -h localhost -u "root" -p"${DB_ROOT_PASSWORD}" "${DATABASE_NAME}" > "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
    fi  
       print_msg "${JAIL} database backup ${DB_BACKUP_NAME} complete"
@@ -461,6 +470,8 @@ print_msg "You choose the jail '${JAIL}' to restore at '$POOL_PATH$APPS_PATH'"
 #fi
 DB_VERSION="$(iocage exec ${JAIL} "mysql -V | cut -d ' ' -f 6  | cut -d . -f -2")"
 DB_VERSION="${DB_VERSION//.}"
+#DB_VERSION="103"
+
 #done
 
 fi
@@ -539,19 +550,25 @@ if [ "${MIGRATE_IP}" == "TRUE" ]; then
        sed -i '' "s/${OLD_GATEWAY}/${NEW_GATEWAY}/g" ${APPS_DIR_SQL}
   fi
 
-     if (( $DB_VERSION >= 104 )); then
-        echo "before mysql >104"      
+print_msg "MYSQL_NATIVE_PASSWORD=${MYSQL_NATIVE_PASSWORD}"
+     if (( $DB_VERSION >= 104 )) && [[ $MYSQL_NATIVE_PASSWORD -eq 0 ]]; then
+        print_msg "DB_VERSION >=104 and no mysql native password"
+#       echo "before mysql >104"      
         iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      else
-        echo "before mysql <104"
+        print_msg "DB_VERSION <104 and mysql native password is true"
+#       echo "before mysql <104"
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
   
 else
    print_msg "Restore Database No Migration"
-     if (( $DB_VERSION >= 104 )); then
+print_msg "MYSQL_NATIVE_PASSWORD=${MYSQL_NATIVE_PASSWORD}"
+     if (( $DB_VERSION >= 104 )) && [[ $MYSQL_NATIVE_PASSWORD -eq 0 ]]; then
+        print_msg "DB_VERSION >=104 and no mysql native password"
         iocage exec "${JAIL}" "mysql -u root "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      else
+        print_msg "DB_VERSION <104 and mysql native password is true"
         iocage exec "${JAIL}" "mysql -u root -p${DB_ROOT_PASSWORD} "${DATABASE_NAME}" < "${JAIL_FILES_LOC}/${DB_BACKUP_NAME}""
      fi
    print_msg "The database ${DB_BACKUP_NAME} has been restored restarting"

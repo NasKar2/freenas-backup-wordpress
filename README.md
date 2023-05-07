@@ -34,7 +34,8 @@ All options have sensible defaults, which can be adjusted if needed. These are:
   This will take longer as there are more files in the root of the pool.
 - DATABASE_NAME: Defaults to `wordpress`
 - MAX_NUM_BACKUPS: The maximum number of backups to keep. If not set will be unlimited. If set to 2 only the latest 2 backups will be kept.
-
+- MYSQL_NATIVE_PASSWORD=1 # mysql authentication for native password is true. ie you need to supply the DB_ROOT_PASSWORD in the 
+  file /root/<JAIL_NAME>_db_password.txt
 Some examples follow:
 
 #### 1. *'I've used the install script, and accepted the default jail name of `wordpress`.'*
